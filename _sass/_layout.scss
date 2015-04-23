@@ -211,6 +211,7 @@
     margin-bottom: $spacing-unit;
 
     h2 {
+        margin-top: $title-spacing-unit;
         font-size: 32px;
 
         @include media-query($on-laptop) {
@@ -219,6 +220,7 @@
     }
 
     h3 {
+        margin-top: $title-spacing-unit;
         font-size: 26px;
 
         @include media-query($on-laptop) {
@@ -227,6 +229,7 @@
     }
 
     h4 {
+        margin-top: $title-spacing-unit;
         font-size: 20px;
 
         @include media-query($on-laptop) {
