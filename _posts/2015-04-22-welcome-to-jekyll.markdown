@@ -230,7 +230,7 @@ buildPipelineView("${project.name}") {
 # En conclusion
 
 En 55 lignes de code et 12 lignes de fichier de description, j'ai pu définir un process de génération d'un pipeline de projet 
-qui dans notre exemple à créer 6 jobs et 2 vues de type pipeline.
+qui dans notre exemple a créé 6 jobs et 2 vues de type pipeline.
  
  Dans le prochain article, j'utiliserai un Job dsl pour générer les jobs de release.
 
