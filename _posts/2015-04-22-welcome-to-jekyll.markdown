@@ -10,7 +10,8 @@ comments: true
 ## Introduction
 
 Jenkins peut rapidement devenir une usine à jobs. Sans être nécessairement Netflix aux 1001 projets, l'application de certains paradigmes peut faire 
-augmenter significativement le nombre de jobs :    
+augmenter significativement le nombre de jobs : 
+
 - La modularisation applicative 
 - La réutilisation de briques techniques
 - Les utils que l'on peut être amené à développer
