@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Jenkins Job DSL - Création automatisée de pipelines "
+title:  "Jenkins Job DSL - Création automatisée de pipelines"
 date:   2015-04-22 21:45:46
 categories: continuous integration
 comments: true
