@@ -19,5 +19,4 @@ Cela implique traditionnellement:
 Ces étapes peuvent se faire *simplement* en utilisant [le plugin release de maven](http://maven.apache.org/maven-release/maven-release-plugin/).
 **La problématique est qu'il bypass complétement notre beau pipeline de `compilation-test-deploiement`**
 
-
-
+La difficulté avec Jenkins va être d'ajouter en queue et en tête de notre pipeline usuelle les deux étapes susnommées. 
