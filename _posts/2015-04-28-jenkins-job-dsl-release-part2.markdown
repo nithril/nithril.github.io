@@ -11,7 +11,7 @@ comments: true
 Votre projet est pret à être releasé. La version déployée en QA a été validée , il ne vous reste plus qu'à fixer votre release.
   
 Cela implique traditionnellement:
-  
+- Une entrée utilisateur indiquant la version suivante   
 - La suppression des qualifiers `SNAPSHOT` et la vérification que toute les dépendances sont bien des versions non snapshot
 - Une execution du pipeline de compilation-test-deploiement.
 - Et quand tout ce passe bien, le passage à la version suivante
@@ -40,6 +40,7 @@ Pour cet article je vais utiliser le dernier: [Workflow plugin](https://github.c
  
 ## Job de release
  
+### Pre Release  
 Ce job checkout le projet, supprime le qualifier SNAPSHOT de **l'ensemble des versions**, dependences comprises, puis il commit les modifications. 
 Pour ce faire je vais utiliser un simple script shell. Pourquoi ne pas utiliser le plugin versions de maven? 
 Ce plugin ne permet pas de supprimer le qualifier SNAPSHOT de la version du projet ni de supprimer ce qualifier dans un projet multi module définissant
@@ -52,6 +53,23 @@ git commit --allow-empty -am "Release"
 git push 
 {% endhighlight %}
   
+### Post Release  
+
+Ce job checkout le projet et modifie la version en utilisant celle entrée par l'utilisateur.
+Pour ce faire j'utilise le plugin Maven Versions:
+ 
+{% highlight bash %}
+node {
+  git url:REPOSITORY, branch:'master'
+  sh 'git checkout master'
+  def mvnHome = tool 'Maven 3.2.2'
+  sh "${mvnHome}/bin/mvn versions:set -DnewVersion=${NEXT_VERSION}  -DgenerateBackupPoms=false"
+  sh "git commit --allow-empty -am \"Release\""
+  sh "git push"
+}
+{% endhighlight %}
+  
+  
  
 
 
@@ -60,8 +78,15 @@ git push
 Jes jobs construits dans la partie 1 de cette suite utilisent des relations upstream/downstream basées sur des triggers de type post build. 
 Comme précisé dans l'introduction, cette relation doit être deconstruite au profit d'une relation
  
- 
- 
+{% highlight groovy %}
+
+build job:'New Release', parameters:[[$class: 'StringParameterValue', name: 'REPOSITORY', value: 'https://github.com/nithril/jenkins-jobdsl-project1.git']]
+build 'Project 1 - Compile'
+build 'Project 1 - Test'
+build job: 'Project 1 - Package'
+
+{% endhighlight %}
+
  
  Je crée les jobs unitairement que je vais ensuite utiliser dans un job de type Workflow.
 
