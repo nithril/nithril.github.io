@@ -35,10 +35,73 @@ Cela doit passer par :
 Pour cet article je vais utiliser le dernier: [Workflow plugin](https://github.com/jenkinsci/workflow-plugin).
 
 
+## Workflow plugin
+
+
+
+
 ## Deconstruction des jobs
 
+Jes jobs construits dans la partie 1 de cette suite utilisent des relations upstream/downstream basées sur des triggers de type post build. 
+Comme précisé dans l'introduction, cette relation doit être deconstruite au profit d'une relation
 
-La contrainte d'attente énoncée ci-dessous est une killer contrainte pour le [Build Pipeline Plugin](https://wiki.jenkins-ci.org/display/JENKINS/Build+Pipeline+Plugin).
+ 
+ 
+## Job de release
+ 
+Ce job checkout le projet, supprime le qualifier SNAPSHOT de **l'ensemble des versions**, dependences comprises, puis il commit les modifications. 
+Pour ce faire je vais utiliser un simple script shell. Pourquoi ne pas utiliser le plugin versions de maven? 
+Ce plugin ne permet pas de supprimer le qualifier SNAPSHOT de la version du projet ni de supprimer ce qualifier dans un projet multi module définissant
+une version au travers d'une propriété définie dans le POM root.
+
+{% highlight shell %}
+git clone ${REPOSITORY} --depth 1 .
+find . -name "pom.xml" | xargs -I file sed -i.bak file -e "s/-SNAPSHOT//"
+git commit -am "Release"
+git push 
+{% endhighlight %}
+  
+ 
+ 
+ 
+ 
+ 
+ Je crée les jobs unitairement que je vais ensuite utiliser dans un job de type Workflow.
+
+{% highlight groovy %}
+
+projects.each { project ->
+
+    //Define projects name
+    def compileProjectName = "${project.name} - Compile"
+    def testProjectName = "${project.name} - Test"
+    def packageProjectName = "${project.name} - Package"
+
+    //Compile Job
+    mavenJob(compileProjectName) {
+        projectScm(delegate, project)
+        goals "compile"
+    }
+
+    //Test Job
+    mavenJob(testProjectName) {
+        projectScm(delegate, project)
+        goals "test"
+    }
+
+    //Package Job
+    freeStyleJob(packageProjectName) {
+        projectScm(delegate, project)
+        steps {
+            maven {
+                goals "package"
+                mavenInstallation "Maven 3.2.2"
+            }
+            shell "cp submodule/target/*.jar /dev/null"
+        }
+    }
+}
+{% endhighlight %}
 
 
 
