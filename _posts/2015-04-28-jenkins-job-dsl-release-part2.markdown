@@ -6,6 +6,8 @@ categories: continuous integration
 comments: true
 ---
 
+{:toc}
+
 ## Introduction
 
 Votre projet est pret à être releasé. Cela implique traditionnellement :
@@ -37,6 +39,7 @@ Pour cet article je vais utiliser le dernier: [Workflow plugin](https://github.c
 ## Workflow plugin
 
 Le workflow plugin ajoute un nouveau type de job nommé "Workflow".
+
 ![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/newjob-workflow.png)
  
 Un job de type Freestyle permet de décrire au travers une interface utilisateur les steps constituants un job. L'approche par interface, si elle a l'avantage d'être visuel 
@@ -44,9 +47,11 @@ et de guider l'utilisateur, a l'inconvénient de sa rigidité.
 Le job de type workflow permet de décrire au travers une DSL Groovy les steps constituants un job. On retrouve donc les steps d'un job sous la forme d'une DSL
 augmenté de la puissance d'un langage de programmation. Une approche donc plus flexible, mais plus technique. Le script peut, comme pour un job de type DSL, être
  stocké dans le job ou dans un SCM.
+ 
  ![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/newjob-workflow-script.png)
  
 La documentation est spartiate voir inexistante, heuresement l'interface offre un snippet generator:  
+
  ![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/newjob-workflow-generator.png)
 
  
@@ -102,6 +107,7 @@ sh 'git push'
 {% endhighlight %}
   
 La ligne 4 permet d'utiliser une version Maven préalablement définie dans les settings Jenkins  
+
 ![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/settings-maven.png)
 
 ### Orchestrateur  
@@ -111,14 +117,12 @@ Ce job possède un paramètre qui sera à saisir par l'utilisateur: `NEXT_VERSIO
   
 {% highlight groovy linenos %}
 def repository = 'https://github.com/nithril/jenkins-jobdsl-project1.git'
-
-build job:'Release - Prepare', parameters:[[$class: 'StringParameterValue', name: 'REPOSITORY', value: repository]]
-
+build job:'Release - Prepare', parameters: [[$class: 'StringParameterValue', name: 'REPOSITORY', value: repository]]
 build 'Project 1 - Compile'
 build 'Project 1 - Test'
 build job: 'Project 1 - Package'
-
-build job:'Release - Next Iteration', parameters:[[$class: 'StringParameterValue', name: 'REPOSITORY', value: repository],
+build job:'Release - Next Iteration', parameters: [[$class: 'StringParameterValue', name: 'REPOSITORY', value: repository],
 [$class: 'StringParameterValue', name: 'NEXT_VERSION', value: NEXT_VERSION]]
-
 {% endhighlight %}
+
+La définition des paramètres d'un job est particulièrement peu intuitive. 
