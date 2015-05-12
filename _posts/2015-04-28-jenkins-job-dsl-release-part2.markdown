@@ -53,24 +53,24 @@ La documentation est spartiate voir inexistante, heuresement l'interface offre u
 ## Pipeline de release
 
 Le pipeline de release sera articulé autour de 5 jobs: `prepare release -> compilation -> test -> package -> next iteration`. 
-Ces jobs utiliseront deux paramètres. Le premier `REPOSITORY` défini le repository sur lequel effectuer la release, le second `NEXT_VERSION` est la version de la prochaine 
-itération. Il sera saisie par l'utilisateur. 
+Ces jobs utiliseront deux paramètres.
+ 
+* Le premier `REPOSITORY` défini le repository sur lequel effectuer la release
+* le second `NEXT_VERSION` est la version de la prochaine itération. Il sera saisie par l'utilisateur. 
  
 ### Job : Prepare release  
 Ce job de type `Workflow` clone le projet, supprime le qualifier SNAPSHOT de **l'ensemble des versions**, dependences comprises, puis il commit les modifications. 
-Pour ce faire je vais utiliser un simple script shell. Pourquoi ne pas utiliser le plugin versions de maven? 
+Pour ce faire je vais utiliser un script shell. Pourquoi ne pas utiliser le plugin versions de maven? 
 Ce plugin ne permet pas de supprimer le qualifier SNAPSHOT de la version du projet ni de supprimer ce qualifier dans un projet multi module définissant
 une version au travers d'une propriété définie dans le POM root.
 
-Ce job possède comme paramètre `REPOSITORY`, le repository sur lequel effectuer la release.
-
-{% highlight groovy %}
+{% highlight groovy linenos %}
 node {
   git url:REPOSITORY, branch:'master'
   sh 'git checkout master'
   sh 'find . -name "pom.xml" | xargs -I file sed -i.bak file -e "s/-SNAPSHOT//"'
-  sh "git commit --allow-empty -am \"Release\""
-  sh "git push"
+  sh 'git commit --allow-empty -am "Release"'
+  sh 'git push'
 }
 {% endhighlight %}
   
@@ -83,14 +83,14 @@ Bref...
   
 Les jobs construits dans la partie 1 de cette suite utilisent des relations upstream/downstream basées sur des triggers de type post build. 
 Comme précisé dans l'introduction, cette relation doit être deconstruite au profit d'une relation qui sera définie dans le job de release. Ormis cette différence,
-les jobs restent inchangés.0
+les jobs restent inchangés.
   
 ### 5) Job : Next Iteration  
 
 Ce job de type `Workflow` clone le projet et modifie la version en utilisant celle entrée par l'utilisateur. Pour ce faire j'utilise simplment 
-le plugin Maven Versions qui pour le coup est adapté.
+le plugin Maven Versions.
  
-{% highlight groovy %}
+{% highlight groovy linenos %}
 node {
 git url:REPOSITORY, branch:'master'
 sh 'git checkout master'
@@ -101,13 +101,15 @@ sh 'git push'
 }
 {% endhighlight %}
   
+La ligne 4 permet d'utiliser une version Maven préalablement définie dans les settings Jenkins  
+![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/settings-maven.png)
 
 ### Orchestrateur  
 
-Les 5 jobs sont mis en musique par un job de type workflow qui se charge de l'orchestration. 
-Ce job possède un paramètre qui sera à saisir par l'utilisateur: `NEXT_VERSION` est la version de la prochaine itération. `REPOSITORY` est hard codé. 
+Les 5 jobs sont mis en musique par un job de type `Workflow` qui se charge de l'orchestration. 
+Ce job possède un paramètre qui sera à saisir par l'utilisateur: `NEXT_VERSION` est la version de la prochaine itération. `REPOSITORY` quant à lui est hard codé. 
   
-{% highlight groovy %}
+{% highlight groovy linenos %}
 def repository = 'https://github.com/nithril/jenkins-jobdsl-project1.git'
 
 build job:'Release - Prepare', parameters:[[$class: 'StringParameterValue', name: 'REPOSITORY', value: repository]]
