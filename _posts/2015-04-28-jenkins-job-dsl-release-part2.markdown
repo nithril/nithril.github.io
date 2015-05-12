@@ -8,9 +8,8 @@ comments: true
 
 ## Introduction
 
-Votre projet est pret à être releasé. La version déployée en QA a été validée , il ne vous reste plus qu'à fixer votre release.
-  
-Cela implique traditionnellement:
+Votre projet est pret à être releasé. Cela implique traditionnellement :
+
 - Une entrée utilisateur indiquant la version suivante   
 - La suppression des qualifiers `SNAPSHOT` et la vérification que toute les dépendances sont bien des versions non snapshot
 - Une execution du pipeline de compilation-test-package.
@@ -37,12 +36,16 @@ Pour cet article je vais utiliser le dernier: [Workflow plugin](https://github.c
 
 ## Workflow plugin
 
-Le workflow plugin ajoute un nouveau type de job nommé "Workflow". 
+Le workflow plugin ajoute un nouveau type de job nommé "Workflow".
+![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/newjob-workflow.png)
+ 
 Un job de type Freestyle permet de décrire au travers une interface utilisateur les steps constituants un job. L'approche par interface si elle a l'avantage d'être visuel 
 et de guider l'utilisateur, elle a l'inconvénient de sa rigidité. 
 Le job de type workflow permet de décrire au travers une DSL Groovy les steps constituants un job. On retrouve donc les steps d'un job sous la forme d'une DSL
 augmenté de la puissance d'un langage de programmation. Une approche donc plus flexible, mais plus technique.  
 
+ 
+ 
  
 ## Job de release
 
