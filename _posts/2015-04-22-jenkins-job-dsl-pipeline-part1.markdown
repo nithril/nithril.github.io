@@ -6,6 +6,8 @@ categories: continuous integration
 comments: true
 ---
 
+* TOC
+{:toc}
 
 ## Introduction
 
