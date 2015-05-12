@@ -39,21 +39,24 @@ Pour cet article je vais utiliser le dernier: [Workflow plugin](https://github.c
 Le workflow plugin ajoute un nouveau type de job nommé "Workflow".
 ![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/newjob-workflow.png)
  
-Un job de type Freestyle permet de décrire au travers une interface utilisateur les steps constituants un job. L'approche par interface si elle a l'avantage d'être visuel 
-et de guider l'utilisateur, elle a l'inconvénient de sa rigidité. 
+Un job de type Freestyle permet de décrire au travers une interface utilisateur les steps constituants un job. L'approche par interface, si elle a l'avantage d'être visuel 
+et de guider l'utilisateur, a l'inconvénient de sa rigidité. 
 Le job de type workflow permet de décrire au travers une DSL Groovy les steps constituants un job. On retrouve donc les steps d'un job sous la forme d'une DSL
-augmenté de la puissance d'un langage de programmation. Une approche donc plus flexible, mais plus technique.  
+augmenté de la puissance d'un langage de programmation. Une approche donc plus flexible, mais plus technique. Le script peut, comme pour un job de type DSL, être
+ stocké dans le job ou dans un SCM.
+ ![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/newjob-workflow-script.png)
+ 
+La documentation est spartiate voir inexistante, heuresement l'interface offre un snippet generator:  
+ ![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/newjob-workflow-generator.png)
 
  
- 
- 
-## Job de release
+## Pipeline de release
 
-Le job de release sera articulé autour de 5 jobs: `prepare release -> compilation -> test -> package -> next iteration`. 
+Le pipeline de release sera articulé autour de 5 jobs: `prepare release -> compilation -> test -> package -> next iteration`. 
 Ces jobs utiliseront deux paramètres. Le premier `REPOSITORY` défini le repository sur lequel effectuer la release, le second `NEXT_VERSION` est la version de la prochaine 
 itération. Il sera saisie par l'utilisateur. 
  
-### Prepare release  
+### Job : Prepare release  
 Ce job de type `Workflow` clone le projet, supprime le qualifier SNAPSHOT de **l'ensemble des versions**, dependences comprises, puis il commit les modifications. 
 Pour ce faire je vais utiliser un simple script shell. Pourquoi ne pas utiliser le plugin versions de maven? 
 Ce plugin ne permet pas de supprimer le qualifier SNAPSHOT de la version du projet ni de supprimer ce qualifier dans un projet multi module définissant
@@ -76,13 +79,13 @@ et git n'apprecie pas de cloner dans un répertoire non vide. A l'inverse la com
 Bref...
   
   
-### compilation -> test -> package
+### Jobs : compilation -> test -> package
   
 Les jobs construits dans la partie 1 de cette suite utilisent des relations upstream/downstream basées sur des triggers de type post build. 
 Comme précisé dans l'introduction, cette relation doit être deconstruite au profit d'une relation qui sera définie dans le job de release. Ormis cette différence,
 les jobs restent inchangés.0
   
-### Next Iteration  
+### 5) Job : Next Iteration  
 
 Ce job de type `Workflow` clone le projet et modifie la version en utilisant celle entrée par l'utilisateur. Pour ce faire j'utilise simplment 
 le plugin Maven Versions qui pour le coup est adapté.
@@ -99,10 +102,10 @@ sh 'git push'
 {% endhighlight %}
   
 
-### Résultat  
+### Orchestrateur  
 
-Les 5 jobs sont mis en musique par un job de type workflow. Ce job possède un paramètre qui sera à saisir par l'utilisateur: `NEXT_VERSION` est la version de la prochaine 
-itération. `REPOSITORY` est hard codé. 
+Les 5 jobs sont mis en musique par un job de type workflow qui se charge de l'orchestration. 
+Ce job possède un paramètre qui sera à saisir par l'utilisateur: `NEXT_VERSION` est la version de la prochaine itération. `REPOSITORY` est hard codé. 
   
 {% highlight groovy %}
 def repository = 'https://github.com/nithril/jenkins-jobdsl-project1.git'
