@@ -1,7 +1,7 @@
 ---
 layout: post
-title:  "Jenkins Job DSL - Pipeline de release"
-date:   2015-04-28 20:00:46
+title:  "Jenkins Workflow - Pipeline de release"
+date:   2015-05-14 14:58:46
 categories: CI
 comments: true
 ---
