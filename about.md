@@ -1,7 +1,9 @@
 ---
-layout: page
-title: About
-permalink: /about/
+layout: about
+title: About Me
+header: About Me
+group: navigation
 ---
-
-TBD...
+ * **Name:** Nicolas Labrot
+ * **Email:** [nithril@gmail.com](mailto:nithril@gmail.com)
+ * **Github:** [Nithril](https://github.com/nithril)

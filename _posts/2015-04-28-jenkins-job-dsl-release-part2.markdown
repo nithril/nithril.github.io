@@ -6,9 +6,6 @@ categories: continuous integration
 comments: true
 ---
 
-* TOC
-{:toc}
-
 ## Introduction
 
 Votre projet est prêt à être releasé. Cela implique traditionnellement :
@@ -18,6 +15,8 @@ Votre projet est prêt à être releasé. Cela implique traditionnellement :
 - Une execution du pipeline de `compilation-test-package`.
 - Et quand tout ce passe bien, le passage à la version suivante
 - En cas d'erreur, un rollback à la version courante
+
+<!--more-->
 
 Soit: `prepare release -> compilation -> test -> package -> (next iteration | rollback)`
 

@@ -2,12 +2,9 @@
 layout: post
 title:  "Jenkins Job DSL - Création automatisée de pipelines"
 date:   2015-04-22 21:45:46
-categories: continuous integration
+categories: CI
 comments: true
 ---
-
-* TOC
-{:toc}
 
 ## Introduction
 
@@ -21,7 +18,7 @@ augmenter significativement le nombre de jobs :
 pour arriver à des projets associés à N jobs. 
 
 Suivant le dernier point, 10 projets vont générer au moins 30 jobs. Enjoy.  
-
+<!--more-->
 
 ## Objectif
 
@@ -236,20 +233,4 @@ En 55 lignes de code et 12 lignes de fichier de description, j'ai pu définir un
 qui dans notre exemple a créé 6 jobs et 2 vues de type pipeline.
  
  Dans le prochain article, j'utiliserai un Job dsl pour générer les jobs de release.
-
-
-
-<div id="disqus_thread"></div>
-<script type="text/javascript">
-    /* * * CONFIGURATION VARIABLES * * */
-    var disqus_shortname = 'nithril';
-    
-    /* * * DON'T EDIT BELOW THIS LINE * * */
-    (function() {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
-</script>
-<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
 
