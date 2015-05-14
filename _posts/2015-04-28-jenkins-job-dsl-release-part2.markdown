@@ -2,7 +2,7 @@
 layout: post
 title:  "Jenkins Job DSL - Pipeline de release"
 date:   2015-04-28 20:00:46
-categories: continuous integration
+categories: CI
 comments: true
 ---
 
