@@ -111,9 +111,9 @@ Nous avons donc une liste de projets qui sont caractérisés par un identifiant,
 1. Je lui ajoute un build step de type `Process Job DSLs`.
 Première option intéressante, le script peut être mis directement dans la configuration du job ou stocké sur le filesystem suite, par exemple, à un clone de son repository.  
 1. J'ajoute le SCM Git sur l'url [du projet](https://github.com/nithril/jenkins-jobdsl.git) contenant le script groovy
-![JobDsl](/assets/jobdsl/job-dsl-scm.png)
+![JobDsl](/assets/2015-04-22-jenkins-job-dsl-pipeline-part1/job-dsl-scm.png)
 1. Et je paramêtre le chemin vers le fichier
-![JobDsl](/assets/jobdsl/jobstep.png)
+![JobDsl](/assets/2015-04-22-jenkins-job-dsl-pipeline-part1/jobstep.png)
 
 ## Description du script
 
@@ -172,7 +172,7 @@ projects.each { project ->
 {% endhighlight %}
 
 Les 2 projects ont respectivement leurs 3 jobs de définis avec leurs relations `downstream`.
-![JobDsl](/assets/jobdsl/list-jobs.png)
+![JobDsl](/assets/2015-04-22-jenkins-job-dsl-pipeline-part1/list-jobs.png)
 
 
 ### Description de `projectScm`
@@ -224,7 +224,7 @@ buildPipelineView("${project.name}") {
 }
 {% endhighlight %}  
 
-![JobDsl](/assets/jobdsl/pipeline-project1.png)
+![JobDsl](/assets/2015-04-22-jenkins-job-dsl-pipeline-part1/pipeline-project1.png)
 
 
 # En conclusion

@@ -43,7 +43,7 @@ Pour cet article je vais utiliser le dernier: [Workflow plugin](https://github.c
 
 Le workflow plugin ajoute un nouveau type de job nommé `Workflow`.
 
-![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/newjob-workflow.png)
+![JobDsl](/assets/2015-05-14-jenkins-workflow-release-part2/newjob-workflow.png)
  
 Un job de type `Freestyle` permet de décrire au travers d'une interface utilisateur les steps constituants un job. 
 L'approche par interface utilisateur, si elle a l'avantage d'être visuelle et de guider l'utilisateur, a l'inconvénient d'une certaine rigidité. 
@@ -51,11 +51,11 @@ Le job de type workflow permet de décrire au travers d'un DSL Groovy les steps 
 augmenté de la puissance d'un langage de programmation (variable, condition, boucle...). Une approche donc plus flexible, mais plus technique. 
 Le script peut, comme pour un job de type DSL, être  stocké dans le job ou dans un SCM.
  
-![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/newjob-workflow-script.png)
+![JobDsl](/assets/2015-05-14-jenkins-workflow-release-part2/newjob-workflow-script.png)
  
 La documentation est spartiate voir inexistante, heureusement l'interface offre un snippet generator:  
 
-![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/newjob-workflow-generator.png)
+![JobDsl](/assets/2015-05-14-jenkins-workflow-release-part2/newjob-workflow-generator.png)
 
 
 Pour plus d'information sur la big picture de ce plugin je vous invite à consulter la présentation de CloudBees
@@ -153,7 +153,7 @@ sh 'git push'
   
 La ligne 1 permet de déclarer et d'utiliser un outil (ici Maven) préalablement défini dans les settings Jenkins  
 
-![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/settings-maven.png)
+![JobDsl](/assets/2015-05-14-jenkins-workflow-release-part2/settings-maven.png)
 
   
 ### Job : Rollback
@@ -242,7 +242,7 @@ L'execution du job donne [le resultat suivant en sortie de console](https://gist
 
 Le menu `Running Steps` permet de voir les steps executés.
  
-![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/orchestrator-job-steps.png)
+![JobDsl](/assets/2015-05-14-jenkins-workflow-release-part2/orchestrator-job-steps.png)
 
 Le clique sur l'icone de la console associé à un step affiche les logs du step correspondant. Seul petit bémol, la sortie d'un step de type `build` se résume
 à l'affichage de `Starting building project: Project 1 - Compile` et non pas à la sortie du job sous jacent.
