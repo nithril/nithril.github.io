@@ -80,7 +80,7 @@
 }
 #journal-articles-block .journal-article .journal-body {
 	padding:0 0 15px 0;
-	width:732px;
+	width:832px;
 	float:left;
 }
 .journal-cat-box {
@@ -204,7 +204,7 @@
 #journal-articles-block .the-article img {
 	display:block;
 	margin:0 auto;
-	max-width:732px;
+	max-width:832px;
 }
 #journal-articles-block {
 	font-size:13px;
