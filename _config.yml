@@ -9,7 +9,7 @@ markdown: kramdown
 
 # The title and tagline is showed on homepage
 #
-title :  "-"
+title :  "Nithril's blog"
 tagline: "-"
 
 # Information about author
