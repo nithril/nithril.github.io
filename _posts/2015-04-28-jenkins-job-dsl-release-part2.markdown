@@ -79,12 +79,12 @@ Ce plugin ne permet pas de supprimer le qualifier SNAPSHOT de la version du proj
 une version au travers d'une propriété définie dans le POM root.
 
 {% highlight groovy linenos %}
-    sh 'rm -Rf * .git'
-    git url:REPOSITORY
-    sh 'git checkout master'
-    sh 'find . -name "pom.xml" | xargs -I file sed -i.bak file -e "s/-SNAPSHOT//"'
-    sh 'git commit --allow-empty -am "Release"'
-    sh 'git push'
+sh 'rm -Rf * .git'
+git url:REPOSITORY
+sh 'git checkout master'
+sh 'find . -name "pom.xml" | xargs -I file sed -i.bak file -e "s/-SNAPSHOT//"'
+sh 'git commit --allow-empty -am "Release"'
+sh 'git push'
 {% endhighlight %}
 
 Ce snippet utilise 2 commandes DSL,`sh` et `git`, dont le nom est suffisamment explicite pour se passer d'explication. 
@@ -101,9 +101,9 @@ Comme précisé dans l'introduction, cette relation doit être deconstruite au p
 les jobs restent inchangés.
 
 {% highlight groovy linenos %}
-    build 'Project 1 - Compile'
-    build 'Project 1 - Test'
-    build 'Project 1 - Package'
+build 'Project 1 - Compile'
+build 'Project 1 - Test'
+build 'Project 1 - Package'
 {% endhighlight %}
 
 La commande dsl `build` invoque un build. Elle peut prendre différents paramètres comme `Wait for completion`, `Propagate errors` ainsi que les paramètres du job. Par exemple, et cela est à ma connaissance la seule manière de faire:
@@ -145,10 +145,10 @@ Ce step modifie la version en utilisant celle saisie par l'utilisateur. Pour ce 
 le plugin Maven Versions.
  
 {% highlight groovy linenos %}
-    def mvnHome = tool 'Maven 3.2.2'
-    sh "${mvnHome}/bin/mvn versions:set -DnewVersion=${NEXT_VERSION}  -DgenerateBackupPoms=false"
-    sh 'git commit --allow-empty -am "Next Version"'
-    sh 'git push'
+def mvnHome = tool 'Maven 3.2.2'
+sh "${mvnHome}/bin/mvn versions:set -DnewVersion=${NEXT_VERSION}  -DgenerateBackupPoms=false"
+sh 'git commit --allow-empty -am "Next Version"'
+sh 'git push'
 {% endhighlight %}
   
 La ligne 1 permet de déclarer et d'utiliser un outil (ici Maven) préalablement définie dans les settings Jenkins  
@@ -161,10 +161,10 @@ La ligne 1 permet de déclarer et d'utiliser un outil (ici Maven) préalablement
 Ce step rollback la version en utilisant celle initiale.
  
 {% highlight groovy linenos %}
-    def mvnHome = tool 'Maven 3.2.2'
-    sh "${mvnHome}/bin/mvn versions:set -DnewVersion=${currentVersion}  -DgenerateBackupPoms=false"
-    sh 'git commit --allow-empty -am "Rollback"'
-    sh 'git push'
+def mvnHome = tool 'Maven 3.2.2'
+sh "${mvnHome}/bin/mvn versions:set -DnewVersion=${currentVersion}  -DgenerateBackupPoms=false"
+sh 'git commit --allow-empty -am "Rollback"'
+sh 'git push'
 {% endhighlight %}
 
 
@@ -230,26 +230,24 @@ def mavenSetVersion(newVersion) {
 
 {% endhighlight %}
 
+La commande `node` permet d'allouer un executor et un workspace sur un noeud Jenkins.
+L'extraction du POM de la version courante se fait au travers un parsing XML groovy du résultat de la commande `readFile` (ligne 10 et 11). 
+On retrouve ensuite les snippet élaborés dans les steps ci-dessus. L'avantage d'un DSL groovy, c'est que l'on à la possibilité de créer des fonctions. 
+Pour le besoin de ce job j'ai créé `commitAndPush` et `mavenSetVersion`.
+  
  
  
 ## Résultat
 
-L'execution du job donne le resultat suivant en sortie de console:
- 
-![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/orchestrator-job.png)
+L'execution du job donne [le resultat suivant en sortie de console](https://gist.github.com/nithril/c9bec727e22a48cc3464).
 
 
 Le menu `Running Steps` permet de voir les steps executés.
  
 ![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/orchestrator-job-steps.png)
 
-Le clique sur l'icone de la console n'affiche pas les logs du step correspondant, à moins que je sois passé à coté de quelque chose.
-
-
-## Gestion des erreurs
-
-Le pipeline de release peut tomber en erreur. Dans ce cas il convient généralement de rollbacker et de revenir à la version SNAPSHOT initial. 
-
+Le clique sur l'icone de la console affiche les logs du step correspondant. Seul petit bémol, la sortie d'un step de type `build` se résume
+à l'affichage de `Starting building project: Project 1 - Compile` et non pas à la sortie du job sous jacent.
 
 
 
