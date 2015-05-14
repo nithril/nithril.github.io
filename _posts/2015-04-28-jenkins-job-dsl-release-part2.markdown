@@ -23,10 +23,10 @@ Soit: `prepare release -> compilation -> test -> package -> (next iteration | ro
 Ces étapes peuvent se faire *simplement* en utilisant [le plugin release de maven](http://maven.apache.org/maven-release/maven-release-plugin/).
 **La problématique est qu'il bypass complétement notre pipeline de `compilation -> test -> package`** avec toutes les spécificités qu'il peut contenir.
 
-<div style="border:red">
-La difficulté avec Jenkins va être d'ajouter en queue et en tête de notre pipeline usuel les deux étapes susnommées.
-Jenkins ne permet pas, avec un systeme upstream/downstream basé sur des triggers de type post build, d'attendre la fin d'un pipeline (entendez avec une profondeur > 1).
-<div>
+
+> La difficulté avec Jenkins va être d'ajouter en queue et en tête de notre pipeline usuel les deux étapes susnommées.
+> Jenkins ne permet pas, avec un systeme upstream/downstream basé sur des triggers de type post build, d'attendre la fin d'un pipeline (entendez avec une profondeur > 1).
+
 
 Cela doit passer par :
 
