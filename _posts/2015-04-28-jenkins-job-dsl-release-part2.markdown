@@ -24,8 +24,8 @@ Ces étapes peuvent se faire *simplement* en utilisant [le plugin release de mav
 **La problématique est qu'il bypass complétement notre pipeline de `compilation -> test -> package`** avec toutes les spécificités qu'il peut contenir.
 
 
-> **La difficulté avec Jenkins va être d'ajouter en queue et en tête de notre pipeline usuel les deux étapes susnommées.**
-> **Jenkins ne permet pas, avec un systeme upstream/downstream basé sur des triggers de type post build, d'attendre la fin d'un pipeline (entendez avec une profondeur > 1).**
+> La difficulté avec Jenkins va être d'ajouter en queue et en tête de notre pipeline usuel les deux étapes susnommées.
+> Jenkins ne permet pas, avec un systeme upstream/downstream basé sur des triggers de type post build, d'attendre la fin d'un pipeline (entendez avec une profondeur > 1).
 
 
 Cela doit passer par :
@@ -45,35 +45,31 @@ Le workflow plugin ajoute un nouveau type de job nommé `Workflow`.
 
 ![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/newjob-workflow.png)
  
-Un job de type Freestyle permet de décrire au travers une interface utilisateur les steps constituants un job. L'approche par interface, si elle a l'avantage d'être visuel 
-et de guider l'utilisateur, a l'inconvénient d'une certaine rigidité rigidité. 
-Le job de type workflow permet de décrire au travers une DSL Groovy les steps constituants un job. On retrouve donc les steps d'un job sous la forme d'une DSL
+Un job de type `Freestyle` permet de décrire au travers d'une interface utilisateur les steps constituants un job. 
+L'approche par interface utilisateur, si elle a l'avantage d'être visuelle et de guider l'utilisateur, a l'inconvénient d'une certaine rigidité. 
+Le job de type workflow permet de décrire au travers d'un DSL Groovy les steps constituants un job. On retrouve donc les steps d'un job classique sous la forme d'une DSL
 augmenté de la puissance d'un langage de programmation (variable, condition, boucle...). Une approche donc plus flexible, mais plus technique. 
-Le script peut, comme pour un job de type DSL, être
- stocké dans le job ou dans un SCM.
+Le script peut, comme pour un job de type DSL, être  stocké dans le job ou dans un SCM.
  
- ![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/newjob-workflow-script.png)
+![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/newjob-workflow-script.png)
  
-La documentation est spartiate voir inexistante, heuresement l'interface offre un snippet generator:  
+La documentation est spartiate voir inexistante, heureusement l'interface offre un snippet generator:  
 
- ![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/newjob-workflow-generator.png)
+![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/newjob-workflow-generator.png)
 
 
-Pour plus d'information sur la big picture derrière ce plugin je vious invite à consulter la présentation de CloudBees
+Pour plus d'information sur la big picture de ce plugin je vous invite à consulter la présentation de CloudBees
 [Jenkins Workflow Webinar - Dec 10, 2014](http://www.slideshare.net/cloudbees/jenkins-workflow-webinar-dec-10-2014)
 
  
 ## Pipeline de release
 
 Le pipeline de release sera articulé autour de 5 steps: `prepare release -> compilation -> test -> package -> (next iteration | rollback)`. 
-Ces jobs utiliseront deux paramètres.
+Ce pipeline utilisera un paramètre `NEXT_VERSION` qui est la version de la prochaine itération. Il sera saisi par l'utilisateur. 
  
-* Le premier `REPOSITORY` définit le repository sur lequel effectuer la release
-* le second `NEXT_VERSION` est la version de la prochaine itération. Il sera saisi par l'utilisateur. 
- 
-### Job : Prepare release  
-Ce step clone le projet, supprime le qualifier SNAPSHOT de **l'ensemble des versions**, dependences comprises, puis il commit les modifications. 
-Pour ce faire je vais utiliser un script shell. Pourquoi ne pas utiliser le plugin versions de maven? 
+### Step 1 : Prepare release  
+Ce step clone le projet, supprime le qualifier SNAPSHOT de **l'ensemble des versions**, dependances comprises, puis il commit les modifications. 
+Pour ce faire je vais utiliser un script shell. Pourquoi ne pas utiliser le plugin versions de maven ? 
 
 Ce plugin ne permet pas de supprimer le qualifier SNAPSHOT de la version du projet ni de supprimer ce qualifier dans un projet multi module définissant
 une version au travers d'une propriété définie dans le POM root.
@@ -89,12 +85,13 @@ sh 'git push'
 
 Ce snippet utilise 2 commandes DSL,`sh` et `git`, dont le nom est suffisamment explicite pour se passer d'explication. 
   
-La ligne 1 est l'équivalent d'un clean workspace. Les lignes 2 et 3 sont atypiques. Pourquoi ne pas simplement cloner le répertoire via un git clone? Jenkins crée des répertoires dans le workspace courant (des `.[hash]`)
-et git n'apprecie pas de cloner dans un répertoire non vide. A l'inverse la commande DSL `git` se positionne sur la référence du master en mode détaché.
+La ligne 1 est l'équivalent d'un clean workspace. Les lignes 2 et 3 sont atypiques. Pourquoi ne pas simplement cloner le répertoire via un git clone? 
+Jenkins crée des `dot` répertoires dans le workspace courant et git n'apprécie pas de cloner dans un répertoire non vide. 
+A l'inverse la commande DSL `git` se positionne sur la référence du master en mode détaché.
 Bref...
   
   
-### Jobs : compilation -> test -> package
+### Step 2,3,4 : compilation -> test -> package
   
 Les jobs construits dans la partie 1 de cette suite utilisent des relations upstream/downstream basées sur des triggers de type post build. 
 Comme précisé dans l'introduction, cette relation doit être deconstruite au profit d'une relation qui sera définie dans le job de release. Ormis cette différence,
@@ -106,17 +103,18 @@ build 'Project 1 - Test'
 build 'Project 1 - Package'
 {% endhighlight %}
 
-La commande dsl `build` invoque un build. Elle peut prendre différents paramètres comme `Wait for completion`, `Propagate errors` ainsi que les paramètres du job. Par exemple, et cela est à ma connaissance la seule manière de faire:
+La commande DSL `build` invoque un build. Elle peut prendre différents paramètres comme `Wait for completion`, `Propagate errors` ainsi que les paramètres du job. 
+Par exemple, et cela est à ma connaissance la seule manière de faire:
 {% highlight groovy linenos %}
 build job:'Foo', parameters: [[$class: 'StringParameterValue', name: 'FOO', value: 'BAR']]
 {% endhighlight %}
 
-`[['FOO' : 'BAR']]` serait plus élégant.
+En passant `[['FOO' : 'BAR']]` serait plus élégant.
   
-La prochaine itération, `(next iteration | rollback)`, est conditionnée au résultat de la présente. Si les trois jobs passent, le projet est releasé, si au des 3 
-failed, le projet est rollbacké.
+Le step suivant, `(next iteration | rollback)`, est conditionné au résultat du présent step. Si les trois jobs passent, le projet est releasé, si un des trois 
+failed, le projet est rollbacké à sa version courante.
 
-Cela peut s'exprimer simplement par un block `try-catch`
+Cela peut s'exprimer simplement par un block `try-catch` car l'echec d'un build lance une exception:
 {% highlight groovy linenos %}
 def success = true
 try {
@@ -128,21 +126,23 @@ try {
 }
 {% endhighlight %}
 
-Il y a différent manière de faire, par exemple en utilisant le retour de build qui est de type [`RunWrapper`](https://github.com/jenkinsci/workflow-plugin/blob/master/support/src/main/java/org/jenkinsci/plugins/workflow/support/steps/build/RunWrapper.java)
+Il y a différente manière de procéder, par exemple en utilisant le retour de build qui est de type 
+[`RunWrapper`](https://github.com/jenkinsci/workflow-plugin/blob/master/support/src/main/java/org/jenkinsci/plugins/workflow/support/steps/build/RunWrapper.java):
 {% highlight groovy linenos %}
     def compileBuild = build job: 'Project 1 - Compile', propagate: false
-    def success = compileBuild.result == 'SUCCESS'
+    def success = 'SUCCESS' == compileBuild.result 
 {% endhighlight %}
-Le propagate à false est indispensable pour bloquer l'envoi d'une exception en cas de failure.
 
-Il y a également le keyword `catchError` qui a une portée plus globale, voir [l'aide du snippet generator] (https://github.com/jenkinsci/workflow-plugin/blob/master/basic-steps/src/main/resources/org/jenkinsci/plugins/workflow/steps/CatchErrorStep/help.html) 
+Le `propagate` mis à false est indispensable pour bloquer le lancement d'une exception en cas d'échec.
+
+Notons également le keyword `catchError` qui a une portée plus globale au bloc en cours d'exécution, voir [l'aide du snippet generator] (https://github.com/jenkinsci/workflow-plugin/blob/master/basic-steps/src/main/resources/org/jenkinsci/plugins/workflow/steps/CatchErrorStep/help.html) 
  
   
   
 ### Job : Next Iteration  
 
 Ce step modifie la version en utilisant celle saisie par l'utilisateur. Pour ce faire j'utilise simplement 
-le plugin Maven Versions.
+le plugin Maven Versions:
  
 {% highlight groovy linenos %}
 def mvnHome = tool 'Maven 3.2.2'
@@ -151,7 +151,7 @@ sh 'git commit --allow-empty -am "Next Version"'
 sh 'git push'
 {% endhighlight %}
   
-La ligne 1 permet de déclarer et d'utiliser un outil (ici Maven) préalablement définie dans les settings Jenkins  
+La ligne 1 permet de déclarer et d'utiliser un outil (ici Maven) préalablement défini dans les settings Jenkins  
 
 ![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/settings-maven.png)
 
@@ -171,7 +171,7 @@ sh 'git push'
 ### Orchestrateur  
 
 Les 5 steps sont mis en musique par un job de type `Workflow` qui se charge de l'orchestration. 
-Ce job possède un paramètre qui sera à saisir par l'utilisateur: `NEXT_VERSION` est la version de la prochaine itération. `REPOSITORY` quant à lui est hard codé. 
+Ce job possède un paramètre qui sera à saisir par l'utilisateur: `NEXT_VERSION` est la version de la prochaine itération.
   
 {% highlight groovy linenos %}
 node {
@@ -230,12 +230,10 @@ def mavenSetVersion(newVersion) {
 
 {% endhighlight %}
 
-La commande `node` permet d'allouer un executor et un workspace sur un noeud Jenkins.
-L'extraction du POM de la version courante se fait au travers un parsing XML groovy du résultat de la commande `readFile` (ligne 10 et 11). 
-On retrouve ensuite les snippet élaborés dans les steps ci-dessus. L'avantage d'un DSL groovy, c'est que l'on à la possibilité de créer des fonctions. 
-Pour le besoin de ce job j'ai créé `commitAndPush` et `mavenSetVersion`.
-  
- 
+La commande `node` permet d'allouer un `executor` et un `workspace` sur un noeud Jenkins.
+L'extraction de la version courante à partir du `POM` se fait au travers un parsing XML Groovy du résultat de la commande `readFile` (ligne 10 et 11). 
+On retrouve ensuite les snippet élaborés dans les steps ci-dessus. Pour le besoin de ce job j'ai créé deux fonctions `commitAndPush` et `mavenSetVersion`.
+   
  
 ## Résultat
 
@@ -246,14 +244,27 @@ Le menu `Running Steps` permet de voir les steps executés.
  
 ![JobDsl](/assets/2015-04-28-jenkins-job-dsl-release-part2/orchestrator-job-steps.png)
 
-Le clique sur l'icone de la console affiche les logs du step correspondant. Seul petit bémol, la sortie d'un step de type `build` se résume
+Le clique sur l'icone de la console associé à un step affiche les logs du step correspondant. Seul petit bémol, la sortie d'un step de type `build` se résume
 à l'affichage de `Starting building project: Project 1 - Compile` et non pas à la sortie du job sous jacent.
 
 
 
+## Conclusion
 
-
-
+Il m'a demandé de revoir la conception classique que j'avais des pipelines Jenkins à base de relations upstream/downstream non bloquantes.
+Le code est relativement concis et surtout localisé et auto suffisant pour comprendre l'entièreté du workflow sans avoir à naviguer dans les relations downstreams ou
+à utiliser des plugins pour mettre en oeuvre des conditions.
+ 
+Le manque de documentation rend la conception fastidieuse. C'est encore un plugin jeune et la compatibilité avec les plugins existants n'est pas automatique
+[mais va en s'améliorant](https://github.com/jenkinsci/workflow-plugin/blob/master/COMPATIBILITY.md)
+> For architectural reasons, plugins providing various extensions of interest to builds cannot be made automatically compatible with Workflow. Typically they require use of some newer APIs, large or small.
+ 
+La visualisation de l'ensemble pourrait être travaillée. La vue `Running Steps` pourrait compléter une vue de plus haut niveau où l'utilisateur aurait la capacité
+ de définir des steps de haut niveau à l'image du pipeline `prepare release -> compilation -> test -> package -> (next iteration | rollback)` et du plugin Build Pipeline.
+ 
+ 
+Dans la partie 3, je reprendrai la partie 1 et la partie 2 suivant ce nouveau paradigme pour générer le pipeline nominal
+  `compilation -> test -> package` et celui de release `prepare release -> compilation -> test -> package -> (next iteration | rollback)`
 
 
 
