@@ -7,7 +7,7 @@ comments: true
 ---
 
 ## Introduction
-
+<img style="float: left;margin-right:20px;" src="/assets/2015-04-22-jenkins-job-dsl-pipeline-part1/jenkins.png">
 Jenkins peut rapidement devenir une usine à jobs. Sans être nécessairement Netflix aux 1001 projets, l'application de certains paradigmes peut faire 
 augmenter significativement le nombre de jobs : 
 

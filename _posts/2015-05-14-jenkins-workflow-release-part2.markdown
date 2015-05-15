@@ -7,7 +7,7 @@ comments: true
 ---
 
 ## Introduction
-
+<img style="float: left;margin-right:20px;" src="/assets/2015-04-22-jenkins-job-dsl-pipeline-part1/jenkins.png">
 Votre projet est prêt à être releasé. Cela implique traditionnellement :
 
 - Une entrée utilisateur indiquant la version suivante   
