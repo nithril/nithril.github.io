@@ -135,7 +135,7 @@ Il y a différente manière de procéder, par exemple en utilisant le retour de 
 
 Le `propagate` mis à false est indispensable pour bloquer le lancement d'une exception en cas d'échec.
 
-Notons également le keyword `catchError` qui a une portée plus globale au bloc en cours d'exécution, voir [l'aide du snippet generator](https://github.com/jenkinsci/workflow-plugin/blob/master/basic-steps/src/main/resources/org/jenkinsci/plugins/workflow/steps/CatchErrorStep/help.html) 
+Notons également la commande `catchError` qui a une portée plus globale au bloc en cours d'exécution, voir [l'aide du snippet generator](https://github.com/jenkinsci/workflow-plugin/blob/master/basic-steps/src/main/resources/org/jenkinsci/plugins/workflow/steps/CatchErrorStep/help.html) 
  
   
   
