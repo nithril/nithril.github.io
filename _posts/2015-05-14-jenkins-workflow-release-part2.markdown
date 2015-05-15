@@ -127,7 +127,7 @@ try {
 {% endhighlight %}
 
 Il y a différente manière de procéder, par exemple en utilisant le retour de build qui est de type 
-[`RunWrapper`](https://github.com/jenkinsci/workflow-plugin/blob/master/support/src/main/java/org/jenkinsci/plugins/workflow/support/steps/build/RunWrapper.java):
+[RunWrapper](https://github.com/jenkinsci/workflow-plugin/blob/master/support/src/main/java/org/jenkinsci/plugins/workflow/support/steps/build/RunWrapper.java):
 {% highlight groovy linenos %}
     def compileBuild = build job: 'Project 1 - Compile', propagate: false
     def success = 'SUCCESS' == compileBuild.result 
@@ -257,6 +257,7 @@ Le code est relativement concis et surtout localisé et auto suffisant pour comp
  
 Le manque de documentation rend la conception fastidieuse. C'est encore un plugin jeune et la compatibilité avec les plugins existants n'est pas automatique
 [mais va en s'améliorant](https://github.com/jenkinsci/workflow-plugin/blob/master/COMPATIBILITY.md)
+
 > For architectural reasons, plugins providing various extensions of interest to builds cannot be made automatically compatible with Workflow. Typically they require use of some newer APIs, large or small.
  
 La visualisation de l'ensemble pourrait être travaillée. La vue `Running Steps` pourrait compléter une vue de plus haut niveau où l'utilisateur aurait la capacité
