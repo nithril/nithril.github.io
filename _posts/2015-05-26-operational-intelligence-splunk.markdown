@@ -2,7 +2,7 @@
 layout: post
 title:  "Splunk"
 date:   2015-05-14 14:58:46
-categories: OI
+categories: Splunk
 comments: true
 ---
 
@@ -54,13 +54,13 @@ Les metrics Java seront extraits en utilisant Metrics de DropWizard
 
 # Installation
 
-{% highlight docker linenos %}
+{% highlight text linenos %}
 FROM ubuntu:14.04
 ADD package/splunk-6.2.3-264376-linux-2.6-amd64.deb /tmp/splunk-6.2.3-264376-linux-2.6-amd64.deb
 RUN sudo dpkg -i /tmp/splunk-6.2.3-264376-linux-2.6-amd64.deb
 {% endhighlight %}
 
-{% highlight shell linenos %}
+{% highlight text linenos %}
 sudo docker build -t splunk .
 sudo docker run -t -p 8000:8000 -v $HOME/splunk/var:/opt/splunk/var/lib/splunk  -v /$HOME/splunk/apps:/opt/splunk/etc/apps -v $HOME/splunk/log:/var/log/myapp -i splunk  /bin/bash
 /opt/splunk/bin/splunk start --accept-license --answer-yes
@@ -75,7 +75,7 @@ Splunk peut être configuré...
 
 
 indexes.conf
-{% highlight ini linenos %}
+{% highlight text linenos %}
 [nlab]
 homePath   = $SPLUNK_DB/nlab/db
 coldPath   = $SPLUNK_DB/nlab/colddb
@@ -84,7 +84,7 @@ thawedPath = $SPLUNK_DB/nlab/thaweddb
 
 
 inputs.conf
-{% highlight ini linenos %}
+{% highlight text linenos %}
 [monitor:///var/log/myapp/*.log]
 {% endhighlight %}
 
