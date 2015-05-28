@@ -11,9 +11,12 @@ comments: true
 > What Is Splunk?
 > You see servers and devices, apps and logs, traffic and clouds. We see data—everywhere. Splunk® offers the leading platform for Operational Intelligence. It enables the curious to look closely at what others ignore—machine data—and find what others never see: insights that can help make your company more productive, profitable, competitive and secure. What can you do with Splunk? Just ask.
 
-Combien coute Splunk? [Un modèle basé sur la volumétrie de log/jour et sur les éditions/features](http://www.splunk.com/en_us/products/pricing.html)
-Quelle sont les différentes éditions? [Enterprise/Cloud/Free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) [Light](http://www.splunk.com/en_us/products/splunk-light/splunk-light-vs-splunk-enterprise.html) 
-Existe t il une version free? [La version free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) est la version Enterprise bridée. Elle limite les features et la volumétrie de logs 
+<!--more-->
+
+
+* Combien coute Splunk? [Un modèle basé sur la volumétrie de log/jour et sur les éditions/features](http://www.splunk.com/en_us/products/pricing.html)
+* Quelle sont les différentes éditions? [Enterprise/Cloud/Free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) [Light](http://www.splunk.com/en_us/products/splunk-light/splunk-light-vs-splunk-enterprise.html) 
+* Existe t il une version free? [La version free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) est la version Enterprise bridée. Elle limite les features et la volumétrie de logs 
 à 500MB/day.
 
 
@@ -23,23 +26,21 @@ La présentation [Monitoring Open Source pour Java avec JmxTrans, Graphite et Na
 est une bonne base présentant des outils Open Source.
 
 ## Metrics
-[Jmxtrans](http://www.jmxtrans.org/): extraction des metriques exporté via JMX
-[Graphite](http://graphite.wikidot.com/): stockage des métriques, exploitation   des metrics (calculs...), rendu (image, texte...). Graphite se compose de carbon (listener), graphite (UI), whisper (stockage RRD)
-[The architecture of clustering Graphite](https://grey-boundary.io/the-architecture-of-clustering-graphite/=
-[Graphana](http://grafana.org/): graphite frontend
+* [Jmxtrans](http://www.jmxtrans.org/): extraction des metriques exporté via JMX
+* [Graphite](http://graphite.wikidot.com/): stockage des métriques, exploitation   des metrics (calculs...), rendu (image, texte...). Graphite se compose de carbon (listener), graphite (UI), whisper (stockage RRD)
+** [The architecture of clustering Graphite](https://grey-boundary.io/the-architecture-of-clustering-graphite/=
+* [Graphana](http://grafana.org/): graphite frontend
 
 ## Logs
-[Logstash](https://www.elastic.co/products/logstash), [flume](https://flume.apache.org/): collecte des logs 
-[Elasticsearch](https://www.elastic.co/products/elasticsearch): stockage
-[Kibana](https://www.elastic.co/products/kibana): query, visualization
+* [Logstash](https://www.elastic.co/products/logstash), [flume](https://flume.apache.org/): collecte des logs 
+* [Elasticsearch](https://www.elastic.co/products/elasticsearch): stockage
+* [Kibana](https://www.elastic.co/products/kibana): query, visualization
 
 ## Alerting
-[Seyren](https://github.com/scobal/seyren): nécessite mongodb
+* [Seyren](https://github.com/scobal/seyren): nécessite mongodb
 
 
 Je pense avoir fait le tour. Il y a bien sur des variations, [InfluxDB](http://influxdb.com/) au lieu de graphite, Nagios au lieu de Seyren...
-
-
 
 
 # Challenge
