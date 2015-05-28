@@ -11,14 +11,11 @@ comments: true
 > What Is Splunk?
 > You see servers and devices, apps and logs, traffic and clouds. We see data—everywhere. Splunk® offers the leading platform for Operational Intelligence. It enables the curious to look closely at what others ignore—machine data—and find what others never see: insights that can help make your company more productive, profitable, competitive and secure. What can you do with Splunk? Just ask.
 
-<!--more-->
-
-
 * Combien coute Splunk? [Un modèle basé sur la volumétrie de log/jour et sur les éditions/features](http://www.splunk.com/en_us/products/pricing.html)
 * Quelle sont les différentes éditions? [Enterprise/Cloud/Free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) [Light](http://www.splunk.com/en_us/products/splunk-light/splunk-light-vs-splunk-enterprise.html) 
 * Existe t il une version free? [La version free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) est la version Enterprise bridée. Elle limite les features et la volumétrie de logs 
 à 500MB/day.
-
+<!--more-->
 
 # Existant Open Source ## 
 
