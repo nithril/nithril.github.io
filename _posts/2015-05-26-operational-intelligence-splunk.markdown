@@ -8,36 +8,46 @@ comments: true
 
 # Introduction
 
-> What Is Splunk?
+Qu'est ce que Splunk?
+
 > You see servers and devices, apps and logs, traffic and clouds. We see data—everywhere. Splunk® offers the leading platform for Operational Intelligence. It enables the curious to look closely at what others ignore—machine data—and find what others never see: insights that can help make your company more productive, profitable, competitive and secure. What can you do with Splunk? Just ask.
 
-* Combien coute Splunk? [Un modèle basé sur la volumétrie de log/jour et sur les éditions/features](http://www.splunk.com/en_us/products/pricing.html)
-* Quelle sont les différentes éditions? [Enterprise/Cloud/Free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) [Light](http://www.splunk.com/en_us/products/splunk-light/splunk-light-vs-splunk-enterprise.html) 
-* Existe t il une version free? [La version free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) est la version Enterprise bridée. Elle limite les features et la volumétrie de logs 
-à 500MB/day.
+En résumé, Splunk est un applicatif closed source. Il ingère des datas de type logs et offre des features de data mining, expoitation, visualisation et extraction. 
+
+
+* Combien coute Splunk? 
+** Il applique un modèle fondé sur la volumétrie de log/jour et sur les éditions/features. [Cf. cette page](http://www.splunk.com/en_us/products/pricing.html).
+* Quelle sont les différentes éditions? 
+** Il existe plusieurs éditions: [Enterprise / Cloud / Free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) [/ Light](http://www.splunk.com/en_us/products/splunk-light/splunk-light-vs-splunk-enterprise.html) 
+* Existe t il une version free? 
+** [La version free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) est la version Enterprise bridée. Elle limite les features et la volumétrie de logs à 500MB/day.
+
 <!--more-->
 
 # Existant Open Source ## 
 
-La présentation [Monitoring Open Source pour Java avec JmxTrans, Graphite et Nagios](http://fr.slideshare.net/cyrille.leclerc/open-source-monitoring-for-java-with-graphite) par par Cyrille Le Clerc, Henri Gomez
+La présentation [Monitoring Open Source pour Java avec JmxTrans, Graphite et Nagios](http://fr.slideshare.net/cyrille.leclerc/open-source-monitoring-for-java-with-graphite) par Cyrille Le Clerc et Henri Gomez
 est une bonne base présentant des outils Open Source.
 
-## Metrics
-* [Jmxtrans](http://www.jmxtrans.org/): extraction des metriques exporté via JMX
-* [Graphite](http://graphite.wikidot.com/): stockage des métriques, exploitation   des metrics (calculs...), rendu (image, texte...). Graphite se compose de carbon (listener), graphite (UI), whisper (stockage RRD)
-** [The architecture of clustering Graphite](https://grey-boundary.io/the-architecture-of-clustering-graphite/=
-* [Graphana](http://grafana.org/): graphite frontend
+### Metrics
+* [Jmxtrans](http://www.jmxtrans.org/): Extraction des metriques exporté via JMX
+* [Graphite](http://graphite.wikidot.com/): Stockage et exploitation des metrics (calculs...), rendu (image, texte...). Graphite se compose de carbon (listener), graphite (UI), whisper (stockage RRD)
+** Graphite peut être mis (difficilement) en cluster: [The architecture of clustering Graphite](https://grey-boundary.io/the-architecture-of-clustering-graphite/)
+* [Graphana](http://grafana.org/): Il permet de constituer des dashboards autour de metrics Graphite (entre autre); ce projet est une perle.  
 
-## Logs
-* [Logstash](https://www.elastic.co/products/logstash), [flume](https://flume.apache.org/): collecte des logs 
-* [Elasticsearch](https://www.elastic.co/products/elasticsearch): stockage
-* [Kibana](https://www.elastic.co/products/kibana): query, visualization
+### Logs
+* [Logstash](https://www.elastic.co/products/logstash), [flume](https://flume.apache.org/): Collecte des logs 
+* [Elasticsearch](https://www.elastic.co/products/elasticsearch): Stockage, query
+* [Kibana](https://www.elastic.co/products/kibana): Exploitation des logs, visualisation et extraction. 
 
-## Alerting
-* [Seyren](https://github.com/scobal/seyren): nécessite mongodb
+### Alerting
+* [Seyren](https://github.com/scobal/seyren): Application d'alerting qui se branche à graphite. Il possède un nombre appréciable de canaux. Il nécessite MongoDB.
 
 
-Je pense avoir fait le tour. Il y a bien sur des variations, [InfluxDB](http://influxdb.com/) au lieu de graphite, Nagios au lieu de Seyren...
+## Conclusion
+
+Je pense avoir fait le tour. Il y a bien sur des variations, [InfluxDB](http://influxdb.com/) au lieu de graphite, Nagios au lieu de Seyren... 
+Quoi qu'il en soit la liste est conséquente et la mise en haute disponibilité de chacun de ces élements pourrait faire l'objet d'un sujet dédié. 
 
 
 # Scenario
