@@ -176,9 +176,9 @@ KV_MODE=none
 AUTO_KV_JSON=false
 {% endhighlight %}
 
-`INDEXED_EXTRACTIONS: Tells Splunk the type of file and the extraction and/or parsing method Splunk should use on the file.`
-`KV_MODE: Used for search-time field extractions only. Specifies the field/value extraction mode for the data.`
-`AUTO_KV_JSON: Used for search-time field extractions only. Specifies whether to try json extraction automatically.`
+* `INDEXED_EXTRACTIONS`: `Tells Splunk the type of file and the extraction and/or parsing method Splunk should use on the file.`
+* `KV_MODE`: `Used for search-time field extractions only. Specifies the field/value extraction mode for the data.`
+* `AUTO_KV_JSON`: `Used for search-time field extractions only. Specifies whether to try json extraction automatically.`
 
 L'extraction des fields est donc faite à l'indexation.
 
