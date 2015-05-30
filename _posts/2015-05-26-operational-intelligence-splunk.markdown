@@ -16,23 +16,23 @@ En résumé, Splunk est un applicatif closed source. Il ingère des datas de typ
 
 
 * Combien coute Splunk? 
-** Il applique un modèle fondé sur la volumétrie de log/jour et sur les éditions/features. [Cf. cette page](http://www.splunk.com/en_us/products/pricing.html).
+⋅⋅* Il applique un modèle fondé sur la volumétrie de log/jour et sur les éditions/features. [Cf. cette page](http://www.splunk.com/en_us/products/pricing.html).
 * Quelle sont les différentes éditions? 
-** Il existe plusieurs éditions: [Enterprise / Cloud / Free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) [/ Light](http://www.splunk.com/en_us/products/splunk-light/splunk-light-vs-splunk-enterprise.html) 
+⋅⋅* Il existe plusieurs éditions: [Enterprise / Cloud / Free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) [/ Light](http://www.splunk.com/en_us/products/splunk-light/splunk-light-vs-splunk-enterprise.html) 
 * Existe t il une version free? 
-** [La version free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) est la version Enterprise bridée. Elle limite les features et la volumétrie de logs à 500MB/day.
+⋅⋅* [La version free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) est la version Enterprise bridée. Elle limite les features et la volumétrie de logs à 500MB/day.
 
 <!--more-->
 
 # Existant Open Source ## 
 
-La présentation [Monitoring Open Source pour Java avec JmxTrans, Graphite et Nagios](http://fr.slideshare.net/cyrille.leclerc/open-source-monitoring-for-java-with-graphite) par Cyrille Le Clerc et Henri Gomez
+La présentation [Monitoring Open Source pour Java avec JmxTrans, Graphite et Nagios](http://fr.slideshare.net/cyrille.leclerc/open-source-monitoring-for-java-with-graphite) 
 est une bonne base présentant des outils Open Source.
 
 ### Metrics
 * [Jmxtrans](http://www.jmxtrans.org/): Extraction des metriques exporté via JMX
 * [Graphite](http://graphite.wikidot.com/): Stockage et exploitation des metrics (calculs...), rendu (image, texte...). Graphite se compose de carbon (listener), graphite (UI), whisper (stockage RRD)
-** Graphite peut être mis (difficilement) en cluster: [The architecture of clustering Graphite](https://grey-boundary.io/the-architecture-of-clustering-graphite/)
+⋅⋅* Graphite peut être mis (difficilement) en cluster: [The architecture of clustering Graphite](https://grey-boundary.io/the-architecture-of-clustering-graphite/)
 * [Graphana](http://grafana.org/): Il permet de constituer des dashboards autour de metrics Graphite (entre autre); ce projet est une perle.  
 
 ### Logs
@@ -44,7 +44,7 @@ est une bonne base présentant des outils Open Source.
 * [Seyren](https://github.com/scobal/seyren): Application d'alerting qui se branche à graphite. Il possède un nombre appréciable de canaux. Il nécessite MongoDB.
 
 
-## Conclusion
+### Conclusion
 
 Je pense avoir fait le tour. Il y a bien sur des variations, [InfluxDB](http://influxdb.com/) au lieu de graphite, Nagios au lieu de Seyren... 
 Quoi qu'il en soit la liste est conséquente et la mise en haute disponibilité de chacun de ces élements pourrait faire l'objet d'un sujet dédié. 
