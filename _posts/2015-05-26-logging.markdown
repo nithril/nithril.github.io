@@ -3,6 +3,7 @@ layout: post
 title:  "Splunk"
 date:   2015-05-14 14:58:46
 categories: Splunk
+published: false
 comments: true
 ---
 
@@ -51,8 +52,27 @@ Il y aura deux types de fichiers en sortie (et donc deux appenders).
 Le premier stockera les logs dans un format faiblement structuré texte, il a pour but d'être lisible par des Humains. Le second stockera dans le format JSON
 pour être lu par les Machines.
 
-Voir l'article portant sur le [logging]() 
+Il y a un certain mismatch entre les frameworks de log courant et l'exploitation que l'on souhaite en faire derrière au travers d'application tel que Splunk.
+Les frameworks sortent une données faiblement structuré
+ placeholders
+ Mapped Diagnostic context (MDC)
  
+ LOG.error("Somethink really bad happens when processing the order {} of the user {}", jobId, userId);
+ 
+ 
+ 
+ 
+
+
+Les frameworks de log  
+
+
+L'objectif du JSON est d'avoir un format structuré dès la source, pour maximiser l'extraction des données tant quelles 
+
+et pour ne pas  développer du pattern matching.
+
+Voir l'article [Write Logs for Machines, use JSON](https://journal.paul.querna.org/articles/2011/12/26/log-for-machines-in-json/)
+
 Pour contraindre l'article à une taille raisonnable, Splunk et l'application seront colocalisée sur le même container. Je développerai cette partie dans la conclusion.
 
 # Installation
@@ -87,21 +107,15 @@ Les fichiers de configuration de splunk sont de [type ini](http://en.wikipedia.o
 Il est conseillé de centraliser les ajouts dans une application Splunk plutôt que de modifier directement les fichiers de configuration "$SPLUNK/etc/system".
     
 La création d'une application est simple et peut se faire en ligne de commande ou via [l'interface web](http://docs.splunk.com/Documentation/Splunk/latest/AdvancedDev/BuildApp).
-
-
-## Application
-
-Je crée mon application `nlab` via l'interface web `/opt/splunk/etc/apps/nlab/`
-
-![Splunk](/assets/2015-05-26-operational-intelligence-splunk/create-app.png)
+     
+Une fois l'application `nlab` créé nous allons pouvoir définir les indexes, les données d'entrées et les type d'indexation.
 
 
 ## Indexes
 
 Je créé deux indexes `NLAB_LOGS` et `NLAB_METRICS` qui vont servir à stocker respectivement les logs et les metrics  
 
-Je crée le fichier [`indexes.conf`](http://docs.splunk.com/Documentation/Splunk/latest/Admin/Indexesconf)  que je stocke dans le répertoire de mon application 
-`/opt/splunk/etc/apps/nlab/local`. 
+Je crée le fichier [`indexes.conf`](http://docs.splunk.com/Documentation/Splunk/latest/Admin/Indexesconf)  que je stocke dans le répertoire de mon application `/opt/splunk/etc/apps/nlab/default`. 
 Pas de fioriture, je ne mets que le strict minimum: le répertoire de stockage des données suivant leurs états. 
 Pour plus d'information sur la notion de staging et de bucket, voir la page suivante [How the indexer stores indexes](http://docs.splunk.com/Documentation/Splunk/6.2.3/Indexer/HowSplunkstoresindexes)
 Le nom de la section permet de nommer l'index. 
@@ -123,8 +137,7 @@ thawedPath = $SPLUNK_DB/nlab_metrics/thaweddb
 
 L'application va générer deux fichiers de logs: `app.log.json` et `metrics.log.json`
 
-Je crée le fichier [`inputs.conf`](http://docs.splunk.com/Documentation/Splunk/latest/Admin/Inputsconf) que je stocke dans le répertoire de mon application 
-`/opt/splunk/etc/apps/nlab/local`.
+Je crée le fichier [`inputs.conf`](http://docs.splunk.com/Documentation/Splunk/latest/Admin/Inputsconf) que je stocke dans le répertoire de mon application `/opt/splunk/etc/apps/nlab/default`.
 
 Les fichiers à monitorer sont définis dans le nom de la section.
 > [monitor://<path>]
@@ -155,7 +168,7 @@ La propriété `index` permet de définir l'index de destination et la propriét
 > important both for searchability and for applying the relevant configuration for this
 > type of data during parsing and indexing.
 
-C'est également une bonne pratique d'indiquer à Splunk le type de logs / traitement à appliquer plutôt que de le laisser inférer (même s'il est relativement bon à ce jeu là).
+C'est également une bonne pratique d'indiquer à Splunk le type de logs / traitement à appliquer plutôt que de le laisser inférer (même s'il peut faire des miracles).
  
 
 ## Processing Properties (Props)
@@ -169,11 +182,9 @@ KV_MODE=none
 AUTO_KV_JSON=false
 {% endhighlight %}
 
-`INDEXED_EXTRACTIONS: Tells Splunk the type of file and the extraction and/or parsing method Splunk should use on the file.`
-`KV_MODE: Used for search-time field extractions only. Specifies the field/value extraction mode for the data.`
-`AUTO_KV_JSON: Used for search-time field extractions only. Specifies whether to try json extraction automatically.`
 
-L'extraction des fields est donc faite à l'indexation.
+
+
 
 
 
