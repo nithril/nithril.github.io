@@ -30,7 +30,7 @@ La présentation [Monitoring Open Source pour Java avec JmxTrans, Graphite et Na
 est une bonne base présentant des outils Open Source.
 
 ### Metrics
-* [Jmxtrans](http://www.jmxtrans.org/): Extraction des metriques exporté via JMX
+* [Jmxtrans](http://www.jmxtrans.org/): Extraction des metriques exportées via JMX
 * [Graphite](http://graphite.wikidot.com/): Stockage et exploitation des metrics (calculs...), rendu (image, texte...). Graphite se compose de carbon (listener), graphite (UI), whisper (stockage RRD)
 * [Graphana](http://grafana.org/): Il permet de constituer des dashboards autour de metrics Graphite (entre autre); ce projet est une perle.  
 
@@ -133,6 +133,7 @@ La configuration des inputs est stockée dans le fichier [`inputs.conf`](http://
  qui est stocké dans le répertoire de l'application `/opt/splunk/etc/apps/nlab/local`.
 
 Les fichiers à monitorer sont définis dans le nom de la section.
+
 > [monitor://<path>]
 > * This directs Splunk to watch all files in <path>. 
 > * <path> can be an entire directory or just a single file.
@@ -154,6 +155,7 @@ sourcetype=NLAB_JSON
 
 
 La propriété `index` permet de définir l'index de destination et la propriété `sourcetype` permet de caractériser le type de traitement à appliquer. 
+
 > Primarily used to explicitly declare the source type for this data, as opposed
 > to allowing it to be determined via automated methods.  This is typically
 > important both for searchability and for applying the relevant configuration for this
@@ -162,7 +164,7 @@ La propriété `index` permet de définir l'index de destination et la propriét
 C'est également une bonne pratique d'indiquer à Splunk le type de logs / traitement à appliquer plutôt que de le laisser inférer (même s'il est relativement bon à ce jeu là).
  
 
-## Processing Properties (Props)
+### Processing Properties (Props)
 
 Cette section permet de définir le type de source que l'on vient d'utiliser dans la section précédante.
 
@@ -176,9 +178,9 @@ KV_MODE=none
 AUTO_KV_JSON=false
 {% endhighlight %}
 
-* `INDEXED_EXTRACTIONS`: `Tells Splunk the type of file and the extraction and/or parsing method Splunk should use on the file.`
-* `KV_MODE`: `Used for search-time field extractions only. Specifies the field/value extraction mode for the data.`
-* `AUTO_KV_JSON`: `Used for search-time field extractions only. Specifies whether to try json extraction automatically.`
+* `INDEXED_EXTRACTIONS: Tells Splunk the type of file and the extraction and/or parsing method Splunk should use on the file.`
+* `KV_MODE: Used for search-time field extractions only. Specifies the field/value extraction mode for the data.`
+* `AUTO_KV_JSON: Used for search-time field extractions only. Specifies whether to try json extraction automatically.`
 
 L'extraction des fields est donc faite à l'indexation.
 
