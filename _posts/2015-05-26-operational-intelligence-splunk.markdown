@@ -32,7 +32,6 @@ est une bonne base présentant des outils Open Source.
 ### Metrics
 * [Jmxtrans](http://www.jmxtrans.org/): Extraction des metriques exporté via JMX
 * [Graphite](http://graphite.wikidot.com/): Stockage et exploitation des metrics (calculs...), rendu (image, texte...). Graphite se compose de carbon (listener), graphite (UI), whisper (stockage RRD)
-    * Graphite peut être mis (difficilement) en cluster: [The architecture of clustering Graphite](https://grey-boundary.io/the-architecture-of-clustering-graphite/)
 * [Graphana](http://grafana.org/): Il permet de constituer des dashboards autour de metrics Graphite (entre autre); ce projet est une perle.  
 
 ### Logs
@@ -46,26 +45,26 @@ est une bonne base présentant des outils Open Source.
 
 ### Conclusion
 
-Je pense avoir fait le tour. Il y a bien sur des variations, [InfluxDB](http://influxdb.com/) au lieu de graphite, Nagios au lieu de Seyren... 
-Quoi qu'il en soit la liste est conséquente et la mise en haute disponibilité de chacun de ces élements pourrait faire l'objet d'un sujet dédié. 
-
+Je pense avoir fait le tour. Il y a bien sur des variations, [InfluxDB](http://influxdb.com/) au lieu de graphite, Nagios au lieu de Seyren...
+La liste des fonctionnalités des projets listés ci-dessous, une fois mis bout à bout, est conséquente. 
+Quoi qu'il en soit le nombre d'applicatif impliqué dans la chaine est conséquente et la mise en haute disponibilité de chacun de ces élements pourrait faire l'objet d'un sujet dédié 
+(eg. pour graphite [The architecture of clustering Graphite](https://grey-boundary.io/the-architecture-of-clustering-graphite/)). 
 
 # Scenario
-
-Peut on avoir le même niveau fonctionnel en utilisant Splunk?  
+ 
+Peut on avoir le même niveau fonctionnel en utilisant Splunk?     
 
 L'objectif va être d'exploiter les logs applicatifs et les metrics d'une application Java 
 
-Les logs et les metrics seront écrits dans des fichiers de logs en utilisant logback. 
-Il y aura deux types de fichiers en sortie (et donc deux appenders). 
+Les logs et les metrics seront écrits dans des fichiers de logs en utilisant logback. Il y aura deux types de fichiers en sortie (et donc deux appenders). 
 Le premier stockera les logs dans un format faiblement structuré texte, il a pour but d'être lisible par des Humains. Le second stockera dans le format JSON
-pour être lu par les Machines.
-
-Voir l'article portant sur le [logging]() 
+pour être lu par les Machines. Pour plus d'information voir l'article en définir portant sur le [logging]() 
  
-Pour contraindre l'article à une taille raisonnable, Splunk et l'application seront colocalisée sur le même container. Je développerai cette partie dans la conclusion.
+Pour contraindre l'article à une taille raisonnable, Splunk et l'application seront colocalisées sur le même container. Je développerai cette partie dans la conclusion.
 
-# Installation
+# Installation de Splunk
+
+## Installation du package
 
 DockerFile
 
@@ -87,34 +86,28 @@ sudo docker run -t -p 8000:8000 -v $HOME/splunk/var:/opt/splunk/var/lib/splunk  
 Pour un controle plus fin, je lance le container sur la commande bash puis je lance en daemon splunk
 
 
-# Configuration
+## Configuration
  
 Splunk peut être configuré de plusieurs façon: ligne de commande, fichiers de configuration, interface REST, interface web. 
-
 Les fichiers de configuration de splunk sont de [type ini](http://en.wikipedia.org/wiki/INI_file)   
-   
 
 Il est conseillé de centraliser les ajouts dans une application Splunk plutôt que de modifier directement les fichiers de configuration "$SPLUNK/etc/system".
-    
 La création d'une application est simple et peut se faire en ligne de commande ou via [l'interface web](http://docs.splunk.com/Documentation/Splunk/latest/AdvancedDev/BuildApp).
 
 
-## Application
+### Application
 
 Je crée mon application `nlab` via l'interface web `/opt/splunk/etc/apps/nlab/`
-
 ![Splunk](/assets/2015-05-26-operational-intelligence-splunk/create-app.png)
 
 
-## Indexes
+### Indexes
 
 Je créé deux indexes `NLAB_LOGS` et `NLAB_METRICS` qui vont servir à stocker respectivement les logs et les metrics  
 
-Je crée le fichier [`indexes.conf`](http://docs.splunk.com/Documentation/Splunk/latest/Admin/Indexesconf)  que je stocke dans le répertoire de mon application 
-`/opt/splunk/etc/apps/nlab/local`. 
+La configuration des indexes est stockée dans fichier [`indexes.conf`](http://docs.splunk.com/Documentation/Splunk/latest/Admin/Indexesconf)
+qui est stocké dans le répertoire de l'application `/opt/splunk/etc/apps/nlab/local`. 
 Pas de fioriture, je ne mets que le strict minimum: le répertoire de stockage des données suivant leurs états. 
-Pour plus d'information sur la notion de staging et de bucket, voir la page suivante [How the indexer stores indexes](http://docs.splunk.com/Documentation/Splunk/6.2.3/Indexer/HowSplunkstoresindexes)
-Le nom de la section permet de nommer l'index. 
 
 {% highlight ini linenos %}
 [NLAB_LOGS]
@@ -128,13 +121,16 @@ coldPath   = $SPLUNK_DB/nlab_metrics/colddb
 thawedPath = $SPLUNK_DB/nlab_metrics/thaweddb
 {% endhighlight %}
 
+Le nom de la section permet de nommer l'index. Les propriétés `homePath`, `coldPath` et `thawedPath` définissent le répertoire de stockage des données suivant leurs états. 
+Pour plus d'information sur la notion de staging et de bucket, voir la page suivante [How the indexer stores indexes](http://docs.splunk.com/Documentation/Splunk/6.2.3/Indexer/HowSplunkstoresindexes)
 
-## Inputs
+
+### Inputs
 
 L'application va générer deux fichiers de logs: `app.log.json` et `metrics.log.json`
 
-Je crée le fichier [`inputs.conf`](http://docs.splunk.com/Documentation/Splunk/latest/Admin/Inputsconf) que je stocke dans le répertoire de mon application 
-`/opt/splunk/etc/apps/nlab/local`.
+La configuration des inputs est stockée dans le fichier [`inputs.conf`](http://docs.splunk.com/Documentation/Splunk/latest/Admin/Inputsconf) 
+ qui est stocké dans le répertoire de l'application `/opt/splunk/etc/apps/nlab/local`.
 
 Les fichiers à monitorer sont définis dans le nom de la section.
 > [monitor://<path>]
@@ -145,8 +141,6 @@ Les fichiers à monitorer sont définis dans le nom de la section.
 
 Des wildcards peuvent être utilisés dans le path pour monitorer des logs d'applicatifs suivant le même formalisme ou par typologie eg. `/var/log/httpd/*_access`.
  
-
-inputs.conf
 {% highlight ini linenos %}
 [monitor:///var/log/myapp/app.json]
 index=NLAB_LOGS
@@ -170,7 +164,10 @@ C'est également une bonne pratique d'indiquer à Splunk le type de logs / trait
 
 ## Processing Properties (Props)
 
-Cette section permet de définir le type de source que l'on vient d'utiliser dans la section précédante.  
+Cette section permet de définir le type de source que l'on vient d'utiliser dans la section précédante.
+
+La configuration des props est stockée dans le fichier [`props.conf`](http://docs.splunk.com/Documentation/Splunk/latest/Admin/Inputsconf) 
+qui est encore une fois stocké dans le répertoire de l'application `/opt/splunk/etc/apps/nlab/local`.
 
 {% highlight ini linenos %}
 [NLAB_JSON]
@@ -186,7 +183,7 @@ AUTO_KV_JSON=false
 L'extraction des fields est donc faite à l'indexation.
 
 
-
+# Exploitation
 
 
 
