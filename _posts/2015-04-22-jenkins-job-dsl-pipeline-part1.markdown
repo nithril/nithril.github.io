@@ -6,11 +6,18 @@ categories: CI
 comments: true
 ---
 
-## Introduction
 <img style="float: left;margin-right:20px;" src="/assets/2015-04-22-jenkins-job-dsl-pipeline-part1/jenkins.png">
 Jenkins peut rapidement devenir une usine à jobs. Sans être nécessairement Netflix aux 1001 projets, l'application de certains paradigmes peut faire 
-augmenter significativement le nombre de jobs : 
+augmenter significativement le nombre de jobs. 
 
+Cet article a pour but de voir comment le plugin `Job DSL` peut résoudre cette problématique. 
+
+<!--more-->
+
+
+## Introduction
+
+L'application de certains paradigmes peut faire augmenter significativement le nombre de jobs:
 - La modularisation applicative 
 - La réutilisation de briques techniques
 - Les utils que l'on peut être amené à développer
@@ -18,7 +25,7 @@ augmenter significativement le nombre de jobs :
 pour arriver à des projets associés à N jobs. 
 
 Suivant le dernier point, 10 projets vont générer au moins 30 jobs. Enjoy.  
-<!--more-->
+
 
 ## Objectif
 

@@ -6,8 +6,17 @@ categories: CI
 comments: true
 ---
 
-## Introduction
 <img style="float: left;margin-right:20px;" src="/assets/2015-04-22-jenkins-job-dsl-pipeline-part1/jenkins.png">
+Votre projet est prêt à être releasé. Cela implique traditionnellement un ensemble d'étapes qu'il convient d'orchestrer
+avec Jenkins en réutilisant si possible le pipeline de `compilation -> test -> package` tout en offrant un niveau d'automatisation satisfaisant. 
+
+Cet article a pour but de voir comment le plugin `Workflow` peut résoudre cette problématique.
+
+
+<!--more-->
+
+## Introduction
+
 Votre projet est prêt à être releasé. Cela implique traditionnellement :
 
 - Une entrée utilisateur indiquant la version suivante   
@@ -16,12 +25,12 @@ Votre projet est prêt à être releasé. Cela implique traditionnellement :
 - Et quand tout ce passe bien, le passage à la version suivante
 - Et en cas d'erreur, un rollback à la version courante
 
-<!--more-->
+
 
 Soit: `prepare release -> compilation -> test -> package -> (next iteration | rollback)`
 
 Ces étapes peuvent se faire *simplement* en utilisant [le plugin release de maven](http://maven.apache.org/maven-release/maven-release-plugin/).
-**La problématique est qu'il bypass complétement notre pipeline de `compilation -> test -> package`** avec toutes les spécificités qu'il peut contenir.
+**La problématique est qu'il est une spécificité et qu'il bypass complétement notre pipeline de `compilation -> test -> package`** avec toutes les spécificités qu'il peut contenir.
 
 
 > La difficulté avec Jenkins va être d'ajouter en queue et en tête de notre pipeline usuel les deux étapes susnommées.
