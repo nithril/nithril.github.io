@@ -262,9 +262,9 @@ index=nlab_metrics | stats max("args.heap.HeapMemoryUsage.used") as memoryUsed, 
 
 Pour donner le graphe suivant:
 
-![Splunk](/assets/2015-05-26-operational-intelligence-splunk/vizualize_combined.png)
+![Splunk](/assets/2015-05-26-operational-intelligence-splunk/visualize_combined.png)
 
-C'est compliqué pour un besoin a priori trivial. Combiner les graphes avec Graphite se résume [à définir une liste de fonctions séparée par un ampersand.](http://graphite.readthedocs.org/en/latest/functions.html). 
+La query est compliquée pour un besoin a priori trivial. Combiner les graphes avec Graphite se résume [à définir une liste de fonctions séparée par un ampersand.](http://graphite.readthedocs.org/en/latest/functions.html). 
 Ce qui donnerait la query (HTTP) suivante `alias(args.heap.HeapMemoryUsage.used, 'Used')&alias(args.heap.HeapMemoryUsage.max, 'Max')`.
 Simple et très efficace.
 
@@ -298,7 +298,7 @@ Le système d'alerte se basant sur l'index, nous aurions pu créer une alerte su
 
 
 
-
+# Conclusion
 
 
 
