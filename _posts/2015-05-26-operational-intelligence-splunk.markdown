@@ -8,7 +8,7 @@ comments: true
 
 <img style="float: left;margin-right:20px;" src="/assets/2015-05-26-operational-intelligence-splunk/splunk.png">
 
-Splunk est un applicatif closed source. Il ingère des datas de type logs et offre des features de data mining, expoitation, visualisation et extraction.
+Splunk est un applicatif closed source avec un business model payant fondé sur la volumétrie de log/day. Il ingère des datas de type logs et offre des features de data mining, expoitation, visualisation et extraction.
 
 Comment Splunk se compare-t-il à ses pendants open source? 
 
@@ -58,10 +58,11 @@ est une bonne base présentant les outils Open Source nécessaires à notre beso
 ### Conclusion
 
 La liste n'est pas exhaustive et il y a bien sur des variations, [InfluxDB](http://influxdb.com/) au lieu de graphite, Nagios au lieu de Seyren...
-La liste des fonctionnalités des projets listés ci-dessous, une fois mis bout à bout, est **conséquente**. 
+La liste des fonctionnalités des projets listés ci-dessous, une fois mis bout à bout, est **conséquente**. Cependant le nombre d'applicatifs impliqués dans la chaine est importante 
+et la mise en haute disponibilité de chacun de ces élements pourrait faire l'objet d'un sujet dédié 
+(eg. pour graphite [The architecture of clustering Graphite](https://grey-boundary.io/the-architecture-of-clustering-graphite/)).
+ 
 
-Cependant le nombre d'applicatifs impliqués dans la chaine est importante et la mise en haute disponibilité de chacun de ces élements pourrait faire l'objet d'un sujet dédié 
-(eg. pour graphite [The architecture of clustering Graphite](https://grey-boundary.io/the-architecture-of-clustering-graphite/)). 
 
 # Scenario
      
@@ -102,6 +103,7 @@ sudo docker run -t -p 8000:8000 -v $HOME/splunk/var:/opt/splunk/var/lib/splunk  
 {% endhighlight %}
 
 Splunk se lance par défaut sur le port 8000. Son répertoire d'installation est `/opt/splunk/`. Je mappe les répertoires suivant:
+
 * `$HOME/splunk/var => /opt/splunk/var/lib/splunk`: contient les datas
 * `$HOME/splunk/apps => /opt/splunk/etc/apps`: contient les applications splunk
 * `$HOME/splunk/log => /var/log/myapp`: contient les logs à indexer 
@@ -221,6 +223,7 @@ Nous sommes prêt à exploiter nos logs.
 ## Affichage des events
 
 Nous allons pouvoir rechercher les events par index:
+
 * Query: `index="nlab_logs"`
 ![Splunk](/assets/2015-05-26-operational-intelligence-splunk/events-logs.png)
 * Query:  `index="nlab_metrics"`
@@ -264,10 +267,9 @@ Pour donner le graphe suivant:
 
 ![Splunk](/assets/2015-05-26-operational-intelligence-splunk/visualize-combined.png)
 
-La query est compliquée pour un besoin a priori trivial. Combiner les graphes avec Graphite se résume [à définir une liste de fonctions séparée par un ampersand.](http://graphite.readthedocs.org/en/latest/functions.html). 
+La query est compliquée pour un besoin a priori trivial. Combiner les graphes avec Graphite se résume [à définir une liste de fonctions séparée par un ampersand](http://graphite.readthedocs.org/en/latest/functions.html). 
 Ce qui donnerait la query (HTTP) suivante `alias(args.heap.HeapMemoryUsage.used, 'Used')&alias(args.heap.HeapMemoryUsage.max, 'Max')`.
 Simple et très efficace.
-
 
 
 ## Alerting
@@ -297,9 +299,10 @@ Le système d'alerte se basant sur l'index, nous aurions pu créer une alerte su
 
 
 
-
 # Conclusion
 
+J'ai eu à mettre en place la stack open source énoncé au début de l'article. Le faire ne fut pas nécessairement simple notamment Graphite (et c'est sans parler de l'aspect HA).
+ 
 
 
 
