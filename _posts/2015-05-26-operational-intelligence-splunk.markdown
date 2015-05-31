@@ -6,14 +6,19 @@ categories: Splunk
 comments: true
 ---
 
+<img style="float: left;margin-right:20px;" src="/assets/2015-05-26-operational-intelligence-splunk/splunk.png">
+
+Splunk est un applicatif closed source. Il ingère des datas de type logs et offre des features de data mining, expoitation, visualisation et extraction.
+Comment Splunk se compare-t-il à ses pendants open source? 
+
+<!--more-->
+
+
 # Introduction
 
 Splunk, qu'est ce? 
 
 > You see servers and devices, apps and logs, traffic and clouds. We see data—everywhere. Splunk® offers the leading platform for Operational Intelligence. It enables the curious to look closely at what others ignore—machine data—and find what others never see: insights that can help make your company more productive, profitable, competitive and secure. What can you do with Splunk? Just ask.
-
-En résumé, Splunk est un applicatif closed source. Il ingère des datas de type logs et offre des features de data mining, expoitation, visualisation et extraction. 
-
 
 * Combien coute Splunk? 
     * Il applique un modèle fondé sur la volumétrie de log/jour et sur les éditions/features. [Cf. cette page](http://www.splunk.com/en_us/products/pricing.html).
@@ -22,7 +27,6 @@ En résumé, Splunk est un applicatif closed source. Il ingère des datas de typ
 * Existe t il une version free? 
     * [La version free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) est la version Enterprise bridée. Elle limite les features et la volumétrie de logs à 500MB/day.
 
-<!--more-->
 
 # Existant Open Source ## 
 
@@ -102,6 +106,7 @@ La création d'une application est simple et peut se faire en ligne de commande 
 ### Application
 
 Je crée mon application `nlab` via l'interface web `/opt/splunk/etc/apps/nlab/`
+
 ![Splunk](/assets/2015-05-26-operational-intelligence-splunk/create-app.png)
 
 
@@ -195,17 +200,69 @@ L'extraction des fields est donc faite à l'indexation.
 
 Une recherche d'évenement en utilisant `index="nlab_logs"` et `index="nlab_metrics"` donne le résultat suivant:
 
-![Splunk](/assets/2015-05-26-operational-intelligence-splunk/events-logs.png)
-
-![Splunk](/assets/2015-05-26-operational-intelligence-splunk/events-metrics.png)
+* ![Splunk](/assets/2015-05-26-operational-intelligence-splunk/events-logs.png)
+* ![Splunk](/assets/2015-05-26-operational-intelligence-splunk/events-metrics.png)
 
 
 ## Affichage des logs
 
-L'affichage des events est brute. Une table dédiée peut être créé n'affichant que les fields d'intêret 
-`timestamp level thread logger message`: `index="nlab_logs" | table timestamp level thread logger message`:
+L'affichage des events est brute. Une table dédiée peut être créé n'affichant que les fields d'intêret. Nous utilisons pour cela la fonction `table` qui prend une liste de fields: `index="nlab_logs" | table timestamp level thread logger message`:
 
 ![Splunk](/assets/2015-05-26-operational-intelligence-splunk/events-logs-table.png)
+
+Cette affichage pourrait être encore raffiné en ne cherchant que les logs de niveau `ERROR`: `index="nlab_logs" level=ERROR | table timestamp level thread logger message`.
+
+
+## Graphing
+
+La query suivante permet d'afficher le graphe de la mémoire utilisée `index="nlab_metrics" | timechart max("args.heap.HeapMemoryUsage.used")`
+
+![Splunk](/assets/2015-05-26-operational-intelligence-splunk/vizualize_used.png)
+
+La query suivante `index="nlab_metrics" | timechart max("args.heap.HeapMemoryUsage.max")` permet logiquement de faire de même avec la mémoire max. 
+
+Notre histoire se corse quand il s'agit d'afficher [les deux series sur un même chart](http://docs.splunk.com/Documentation/Splunk/6.2.3/Search/Chartmultipledataseries):
+> Splunk Enterprise transforming commands do not support a direct way to define multiple data series in your charts (or timecharts). However, you CAN achieve this using a combination of the stats and xyseries commands. 
+
+Ce qui traduit avec nos données donne la query suivante:
+
+{% highlight text linenos %}
+index=nlab_metrics | stats max("args.heap.HeapMemoryUsage.used") as memoryUsed, max("args.heap.HeapMemoryUsage.max") as memoryMax by _time,source | eval s1="args.heap.HeapMemoryUsage.used args.heap.HeapMemoryUsage.max" | makemv s1 | mvexpand s1 | eval yval=case(s1=="args.heap.HeapMemoryUsage.used",memoryUsed,s1=="args.heap.HeapMemoryUsage.max",memoryMax) | eval series=source+":"+s1 | xyseries _time,series,yval
+{% endhighlight %}
+
+![Splunk](/assets/2015-05-26-operational-intelligence-splunk/vizualize_combined.png)
+
+Combiner les graphes avec Graphite se résume [à définir une liste de fonctions séparée par un ampersand.](http://graphite.readthedocs.org/en/latest/functions.html). Simple et très effiace.
+
+
+## Alerting
+
+La création d'alerte se fait en définissant une query de recherche puis en créant une alerte à partir de celle-ci.
+
+L'alerte que nous définissons se fera sur la mémoire JVM restante : 
+{% highlight text linenos %}
+index=nlab_metrics "args.heap.HeapMemoryUsage.used"="*" earliest=-60s| eval free=('args.heap.HeapMemoryUsage.max' - 'args.heap.HeapMemoryUsage.used') | eval threshold=free - 'args.heap.HeapMemoryUsage.max' * 0.15 | search threshold < 0
+{% endhighlight %}
+
+* `"args.heap.HeapMemoryUsage.used"="*"`: retourne les events ayant ce field de value
+* `earliest=-60s`: entre maintenant et -60s dans le passé
+* `eval free=('args.heap.HeapMemoryUsage.max' - 'args.heap.HeapMemoryUsage.used')`: définition du field `free` égale à la mémoire libre
+* `eval threshold=free - 'args.heap.HeapMemoryUsage.max' * 0.15`: définition du field `free` égale à la mémoire libre moins le seuil d'alerte fixé à 15% de la mémoire max
+* `search threshold < 0`: permet de filtrer les résultat
+
+Nous la sauvons en tant qu'alerte
+
+![Splunk](/assets/2015-05-26-operational-intelligence-splunk/alert-create-1.png)
+
+![Splunk](/assets/2015-05-26-operational-intelligence-splunk/alert-create-2.png)
+
+Le système d'alerte se basant sur l'index, j'aurais pu créer une alerte sur l'index de logs associé au niveau de log ERROR donnant une query de ce type
+`index=nlab_logs level=ERROR earliest=-60s`
+
+
+
+
+
 
 
 
