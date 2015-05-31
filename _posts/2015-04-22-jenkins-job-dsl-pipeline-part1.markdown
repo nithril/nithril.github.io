@@ -10,7 +10,8 @@ comments: true
 Jenkins peut rapidement devenir une usine à jobs. Sans être nécessairement Netflix aux 1001 projets, l'application de certains paradigmes peut faire 
 augmenter significativement le nombre de jobs. 
 
-Cet article a pour but de voir comment le plugin `Job DSL` peut résoudre cette problématique. 
+Nous allons voir comment le plugin `Job DSL` peut résoudre cette problématique.
+
 
 <!--more-->
 

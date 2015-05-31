@@ -10,8 +10,7 @@ comments: true
 Votre projet est prêt à être releasé. Cela implique traditionnellement un ensemble d'étapes qu'il convient d'orchestrer
 avec Jenkins en réutilisant si possible le pipeline de `compilation -> test -> package` tout en offrant un niveau d'automatisation satisfaisant. 
 
-Cet article a pour but de voir comment le plugin `Workflow` peut résoudre cette problématique.
-
+Nous allons voir comment le plugin `Workflow` peut résoudre cette problématique.
 
 <!--more-->
 
