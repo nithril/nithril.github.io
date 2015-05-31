@@ -45,16 +45,20 @@ est une bonne base présentant des outils Open Source.
 
 ### Conclusion
 
-Je pense avoir fait le tour. Il y a bien sur des variations, [InfluxDB](http://influxdb.com/) au lieu de graphite, Nagios au lieu de Seyren...
+Il y a bien sur des variations, [InfluxDB](http://influxdb.com/) au lieu de graphite, Nagios au lieu de Seyren...
 La liste des fonctionnalités des projets listés ci-dessous, une fois mis bout à bout, est conséquente. 
-Quoi qu'il en soit le nombre d'applicatif impliqué dans la chaine est conséquente et la mise en haute disponibilité de chacun de ces élements pourrait faire l'objet d'un sujet dédié 
+Cependant le nombre d'applicatif impliqué dans la chaine est conséquente et la mise en haute disponibilité de chacun de ces élements pourrait faire l'objet d'un sujet dédié 
 (eg. pour graphite [The architecture of clustering Graphite](https://grey-boundary.io/the-architecture-of-clustering-graphite/)). 
 
 # Scenario
  
-Peut on avoir le même niveau fonctionnel en utilisant Splunk?     
+Peut on avoir le même niveau fonctionnel en utilisant Splunk?      
 
-L'objectif va être d'exploiter les logs applicatifs et les metrics d'une application Java 
+L'objectif va être d'exploiter les logs applicatifs et les metrics d'une application Java.
+* Parcours des logs
+* Affichage sur un même graphique de la mémoire heap utilisée et de la mémoire heap max
+* Création d'une alerte sur la mémoire utilisée 
+ 
 
 Les logs et les metrics seront écrits dans des fichiers de logs en utilisant logback. Il y aura deux types de fichiers en sortie (et donc deux appenders). 
 Le premier stockera les logs dans un format faiblement structuré texte, il a pour but d'être lisible par des Humains. Le second stockera dans le format JSON
@@ -143,11 +147,11 @@ Les fichiers à monitorer sont définis dans le nom de la section.
 Des wildcards peuvent être utilisés dans le path pour monitorer des logs d'applicatifs suivant le même formalisme ou par typologie eg. `/var/log/httpd/*_access`.
  
 {% highlight ini linenos %}
-[monitor:///var/log/myapp/app.json]
+[monitor:///var/log/myapp/app.json.log]
 index=NLAB_LOGS
 sourcetype=NLAB_JSON
 
-[monitor:///var/log/myapp/metrics.json]
+[monitor:///var/log/myapp/metrics.json.log]
 index=NLAB_METRICS
 sourcetype=NLAB_JSON
 
@@ -187,6 +191,21 @@ L'extraction des fields est donc faite à l'indexation.
 
 # Exploitation
 
+## Affichage des events
+
+Une recherche d'évenement en utilisant `index="nlab_logs"` et `index="nlab_metrics"` donne le résultat suivant:
+
+![Splunk](/assets/2015-05-26-operational-intelligence-splunk/events-logs.png)
+
+![Splunk](/assets/2015-05-26-operational-intelligence-splunk/events-metrics.png)
+
+
+## Affichage des logs
+
+L'affichage des events est brute. Une table dédiée peut être créé n'affichant que les fields d'intêret 
+`timestamp level thread logger message`: `index="nlab_logs" | table timestamp level thread logger message`:
+
+![Splunk](/assets/2015-05-26-operational-intelligence-splunk/events-logs-table.png)
 
 
 
