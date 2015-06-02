@@ -10,58 +10,25 @@ comments: true
 
 Splunk est un applicatif closed source avec un business model payant fondé sur la volumétrie de log/day. Il ingère des datas de type logs et offre des features de data mining, expoitation, visualisation et extraction.
 
-Comment Splunk se compare-t-il à ses pendants open source? 
+Dans cet article nous allons installer Splunk, configurer l'extraction de logs et de metrics, exploiter les logs dans une recherche simple et afficher des metrics
+ sur un graphique. Pour finir nous créerons une alerte associée.
 
 <!--more-->
 
+# Splunk en quelques mots
 
-# Introduction
-
-Splunk c'est d'après [le site web](http://www.splunk.com/): 
+Splunk c'est sous la plume du marketing (http://www.splunk.com/): 
 
 > You see servers and devices, apps and logs, traffic and clouds. We see data—everywhere. Splunk® offers the leading platform for Operational Intelligence. It enables the curious to look closely at what others ignore—machine data—and find what others never see: insights that can help make your company more productive, profitable, competitive and secure. What can you do with Splunk? Just ask.
 
-* Combien coute Splunk? 
-    * Il applique un modèle fondé sur la volumétrie de log/jour et sur les éditions/features. [Cf. cette page](http://www.splunk.com/en_us/products/pricing.html).
-* Quelle sont les différentes éditions / Quelles sont ses features? 
-    * Il existe plusieurs éditions: [Enterprise / Cloud / Free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) [/ Light](http://www.splunk.com/en_us/products/splunk-light/splunk-light-vs-splunk-enterprise.html) 
-* Existe t il une version free? 
-    * [La version free](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) est la version Enterprise bridée. Elle limite les features et la volumétrie de logs à 500MB/day.
-* Quels sont les systèmes supportés 
-    * [Linux, Windows, Solaris, Mac OS, FreeBSD, AIX](http://www.splunk.com/en_us/download/splunk-enterprise.html)
+Le modèle de licence et de cout de Splunk est fondé sur la volumétrie de log/jour et [sur les éditions/features].(http://www.splunk.com/en_us/products/pricing.html).
+Il offre plusieurs éditions [Enterprise / Cloud](http://www.splunk.com/en_us/products/splunk-enterprise/free-vs-enterprise.html) [/ Light](http://www.splunk.com/en_us/products/splunk-light/splunk-light-vs-splunk-enterprise.html) 
+dont une version free] qui limite les features et la volumétrie de logs à 500MB/day.
+Splunk supporte [Linux, Windows, Solaris, Mac OS, FreeBSD, AIX](http://www.splunk.com/en_us/download/splunk-enterprise.html).
 
-Splunk n'est pas gratuit (tout du moins s'il l'on dépasse la limite des 500MB/day et/ou si l'on cherche des features plus avancée) et est closed source.
- Il semble avoir pour lui de posséder des fonctions d'extraction, d'indexation et d'exploitation intégrées dans un seul outil là où pour avoir un 
- équivalent Open Source, nous devrions intégrer plus d'un outil.
-  
- 
-
-# Existant Open Source ## 
-
-La présentation [Monitoring Open Source pour Java avec JmxTrans, Graphite et Nagios](http://fr.slideshare.net/cyrille.leclerc/open-source-monitoring-for-java-with-graphite) 
-est une bonne base présentant les outils Open Source nécessaires à notre besoin.
-
-### Metrics / Graphing
-* [Jmxtrans](http://www.jmxtrans.org/): Extraction des metriques exportées via JMX
-* [Graphite](http://graphite.wikidot.com/): Stockage et exploitation des metrics (calculs...), rendu (image, texte...). Graphite se compose de de trois applicatifs Python carbon  (listener), graphite (UI), whisper (stockage RRD)
-* [Graphana](http://grafana.org/): Il permet de constituer des dashboards autour de metrics Graphite (entre autre); ce projet est une perle.  
-
-### Logs
-* [Logstash](https://www.elastic.co/products/logstash), [flume](https://flume.apache.org/): Collecte des logs 
-* [Elasticsearch](https://www.elastic.co/products/elasticsearch): Stockage, query
-* [Kibana](https://www.elastic.co/products/kibana): Exploitation des logs, visualisation et extraction. 
-
-### Alerting
-* [Seyren](https://github.com/scobal/seyren): Application d'alerting qui se branche à graphite. Il possède un nombre appréciable de canaux. Il nécessite MongoDB.
-
-
-### Conclusion
-
-La liste n'est pas exhaustive et il y a bien sur des variations, [InfluxDB](http://influxdb.com/) au lieu de graphite, Nagios au lieu de Seyren...
-La liste des fonctionnalités des projets listés ci-dessous, une fois mis bout à bout, est **conséquente**. Cependant le nombre d'applicatifs impliqués dans la chaine est importante 
-et la mise en haute disponibilité de chacun de ces élements pourrait faire l'objet d'un sujet dédié 
-(eg. pour graphite [The architecture of clustering Graphite](https://grey-boundary.io/the-architecture-of-clustering-graphite/)).
- 
+Splunk, hormis donc la version free mais limité, n'est pas gratuit et est closed source.
+ Il a pour lui de posséder des fonctions d'extraction, d'indexation et d'exploitation intégrées dans un seul outil là où pour avoir un 
+ équivalent Open Source, nous devrions intégrer plus d'un outils.
 
 
 # Scenario
@@ -271,6 +238,15 @@ La query est compliquée pour un besoin a priori trivial. Combiner les graphes a
 Ce qui donnerait la query (HTTP) suivante `alias(args.heap.HeapMemoryUsage.used, 'Used')&alias(args.heap.HeapMemoryUsage.max, 'Max')`.
 Simple et très efficace.
 
+Par contre Splunk sait combiner des graphes suivant un critère de regroupement. Par exemple la query suivante affiche la mémoire libre par host:
+ {% highlight text linenos %}
+index=nlab_metrics "args.heap.HeapMemoryUsage.used"="*" earliest=-60s| eval free=('args.heap.HeapMemoryUsage.max' - 'args.heap.HeapMemoryUsage.used') 
+   | timechart avg(free) by host
+{% endhighlight %}
+
+Même si dans le cas présent nous n'avons qu'un host:
+
+![Splunk](/assets/2015-05-26-operational-intelligence-splunk/visualize-group-by.png)
 
 ## Alerting
 
@@ -301,10 +277,53 @@ Le système d'alerte se basant sur l'index, nous aurions pu créer une alerte su
 
 # Conclusion
 
-J'ai eu à mettre en place la stack open source énoncé au début de l'article. Le faire ne fut pas nécessairement simple notamment Graphite (et c'est sans parler de l'aspect HA).
+Dans cet article nous n'avons survolé qu'une partie des possibilités offertes par Splunk:
+
+* Splunk peut être [clusterisé et répliqué](http://docs.splunk.com/Documentation/Splunk/6.2.3/Indexer/Aboutclusters) suivant différentes topologie 
+    (eg. noeuds indexer, noeuds searcher).
+* L'extraction des logs sur un serveur distant peut et doit être réalisée en utilisant un [`Splunk Universal Forwarder`](http://www.splunk.com/en_us/download/universal-forwarder.html) 
+    qui est configuré en utilisant les mêmes mécanismes que ceux que nous avons vu.
+* Dans sa version Enterprise, il permet la gestion d'un ensemble de forwarders et de leurs configurations qui est donc centralisées et poussées du serveur vers le forwarder, 
+    configuration associée via un système de classificateur (par host, ip...)
+* Splunk possède un écosystème [d'apps et addons](https://splunkbase.splunk.com/), citons notamment [Splunk App for Unix and Linux](https://splunkbase.splunk.com/app/273/)
+* Il permet la création de dashboard et il offre également un SDK 
+* L'aspect exploitation des logs peut être poussé en utilisant un ensemble de [commandes et de fonctions](http://docs.splunk.com/Documentation/Splunk/latest/SearchReference/WhatsInThisManual)
+* [...]
+
+
+## Existant Open Source ## 
+
+La présentation [Monitoring Open Source pour Java avec JmxTrans, Graphite et Nagios](http://fr.slideshare.net/cyrille.leclerc/open-source-monitoring-for-java-with-graphite) 
+est une bonne base présentant les outils Open Source nécessaires à notre besoin.
+
+### Metrics / Graphing
+* [Jmxtrans](http://www.jmxtrans.org/): Extraction des metriques exportées via JMX
+* [Graphite](http://graphite.wikidot.com/): Stockage et exploitation des metrics (calculs...), rendu (image, texte...). Graphite se compose de de trois applicatifs Python carbon  (listener), graphite (UI), whisper (stockage RRD)
+* [Graphana](http://grafana.org/): Il permet de constituer des dashboards autour de metrics Graphite (entre autre); ce projet est une perle.  
+
+### Logs
+* [Logstash](https://www.elastic.co/products/logstash), [flume](https://flume.apache.org/): Collecte des logs 
+* [Elasticsearch](https://www.elastic.co/products/elasticsearch): Stockage, query
+* [Kibana](https://www.elastic.co/products/kibana): Exploitation des logs, visualisation et extraction. 
+
+### Alerting
+* [Seyren](https://github.com/scobal/seyren): Application d'alerting qui se branche à graphite. Il possède un nombre appréciable de canaux. Il nécessite MongoDB.
+
+
+La liste n'est pas exhaustive et il y a bien sur des variations, [InfluxDB](http://influxdb.com/) au lieu de graphite, Nagios au lieu de Seyren...
+La liste des fonctionnalités des projets listés ci-dessous, une fois mis bout à bout, est **conséquente**. Cependant le nombre d'applicatifs impliqués dans la chaine est importante 
+et la mise en haute disponibilité de chacun de ces élements pourrait faire l'objet d'un sujet dédié 
+(eg. pour graphite [The architecture of clustering Graphite](https://grey-boundary.io/the-architecture-of-clustering-graphite/)).
+
+Pour m'être frotté à la mise en place de cette stack open source avec en prime sa *puppetisation*, le faire ne fut pas nécessairement rapide et simple (et c'est sans parler de l'aspect HA).
  
+ 
+## Pour conclure 
+ 
+**Le point majeur est à mon sens l'aspect intégré et homogène de la solution**. Qui a un coût bien sur.
 
-
+Mon bémol porte pour l'instant sur les aspects graphing qui bien [qu'il soit riche](http://docs.splunk.com/Documentation/Splunk/6.2.3/Viz/Visualizationreference#Charts) ne me semble
+pas égaler les possibilités et la facilité offertes par Graphite.
 
 
 
