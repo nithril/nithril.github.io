@@ -6,7 +6,7 @@ categories: Splunk
 comments: true
 ---
 
-<img style="float: left;margin-right:20px;" src="/assets/2015-05-26-operational-intelligence-splunk/splunk.png">
+<img style="float: left;margin-right:20px;" src="/assets/2015-06-02-operational-intelligence-splunk/splunk.png">
 
 Splunk est un applicatif closed source avec un business model payant fondé sur la volumétrie de log/day. Il ingère des datas de type logs et offre des features de data mining, expoitation, visualisation et extraction.
 
@@ -97,7 +97,7 @@ La création d'une application est simple et peut se faire en ligne de commande 
 
 Nous allons créer l'application `nlab` via l'interface web `/opt/splunk/etc/apps/nlab/`
 
-![Splunk](/assets/2015-05-26-operational-intelligence-splunk/create-app.png)
+![Splunk](/assets/2015-06-02-operational-intelligence-splunk/create-app.png)
 
 
 ### Indexes
@@ -193,9 +193,9 @@ Nous sommes prêt à exploiter nos logs.
 Nous allons pouvoir rechercher les events par index:
 
 * Query: `index="nlab_logs"`
-![Splunk](/assets/2015-05-26-operational-intelligence-splunk/events-logs.png)
+![Splunk](/assets/2015-06-02-operational-intelligence-splunk/events-logs.png)
 * Query:  `index="nlab_metrics"`
-![Splunk](/assets/2015-05-26-operational-intelligence-splunk/events-metrics.png)
+![Splunk](/assets/2015-06-02-operational-intelligence-splunk/events-metrics.png)
 
 
 
@@ -204,7 +204,7 @@ Nous allons pouvoir rechercher les events par index:
 L'affichage des events est brute. Une table dédiée peut être créé n'affichant que les fields d'intêrets. Nous utilisons pour cela la fonction [`table`](http://docs.splunk.com/Documentation/Splunk/6.2.3/SearchReference/Table) 
 qui prend une liste de fields: `index="nlab_logs" | table timestamp level thread logger message`:
 
-![Splunk](/assets/2015-05-26-operational-intelligence-splunk/events-logs-table.png)
+![Splunk](/assets/2015-06-02-operational-intelligence-splunk/events-logs-table.png)
 
 Cet affichage pourrait être encore raffiné en ne cherchant que les logs de niveau `ERROR`: `index="nlab_logs" level=ERROR | table timestamp level thread logger message`.
 
@@ -215,7 +215,7 @@ Le premier graphe que nous allons afficher est celui de la mémoire utilisée.
  Pour ce faire nous pouvons utiliser la query suivante `index="nlab_metrics" | timechart max("args.heap.HeapMemoryUsage.used")` 
  qui utilise la fonction [`timechart`](http://docs.splunk.com/Documentation/Splunk/latest/SearchReference/Timechart).
 
-![Splunk](/assets/2015-05-26-operational-intelligence-splunk/vizualize_used.png)
+![Splunk](/assets/2015-06-02-operational-intelligence-splunk/vizualize_used.png)
 
 La query suivante `index="nlab_metrics" | timechart max("args.heap.HeapMemoryUsage.max")` permet logiquement de faire de même avec la mémoire max. 
 
@@ -234,7 +234,7 @@ index=nlab_metrics | stats max("args.heap.HeapMemoryUsage.used") as memoryUsed, 
 
 Pour donner le graphe suivant:
 
-![Splunk](/assets/2015-05-26-operational-intelligence-splunk/visualize-combined.png)
+![Splunk](/assets/2015-06-02-operational-intelligence-splunk/visualize-combined.png)
 
 La query est compliquée pour un besoin a priori trivial. Combiner les graphes avec Graphite se résume [à définir une liste de fonctions séparée par un ampersand](http://graphite.readthedocs.org/en/latest/functions.html). 
 Ce qui donnerait la query (HTTP) suivante `alias(args.heap.HeapMemoryUsage.used, 'Used')&alias(args.heap.HeapMemoryUsage.max, 'Max')`.
@@ -248,7 +248,7 @@ index=nlab_metrics "args.heap.HeapMemoryUsage.used"="*" earliest=-60s| eval free
 
 Même si dans le cas présent nous n'avons qu'un host:
 
-![Splunk](/assets/2015-05-26-operational-intelligence-splunk/visualize-group-by.png)
+![Splunk](/assets/2015-06-02-operational-intelligence-splunk/visualize-group-by.png)
 
 ## Alerting
 
@@ -268,9 +268,9 @@ index=nlab_metrics "args.heap.HeapMemoryUsage.used"="*" earliest=-60s| eval free
 
 Nous la sauvons en tant qu'alerte
 
-![Splunk](/assets/2015-05-26-operational-intelligence-splunk/alert-create-1.png)
+![Splunk](/assets/2015-06-02-operational-intelligence-splunk/alert-create-1.png)
 
-![Splunk](/assets/2015-05-26-operational-intelligence-splunk/alert-create-2.png)
+![Splunk](/assets/2015-06-02-operational-intelligence-splunk/alert-create-2.png)
 
 Le système d'alerte se basant sur l'index, nous aurions pu créer une alerte sur l'index de logs associée au niveau de log ERROR donnant une query de ce type
 `index=nlab_logs level=ERROR earliest=-60s`
