@@ -33,8 +33,9 @@ Splunk, hormis donc la version free mais limité, n'est pas gratuit et est close
 
 # Scenario
      
-L'objectif va être d'exploiter les logs applicatifs et les metrics d'une application Java.
-* affichage des logs
+L'objectif va être d'exploiter les logs applicatifs et les metrics d'une application Java:
+
+* Affichage des logs
 * Affichage sur un même graphique de la mémoire heap utilisée et de la mémoire heap max
 * Création d'une alerte sur la mémoire utilisée 
  
@@ -69,7 +70,7 @@ Pour un controle plus fin, je lance le container sur la commande bash
 sudo docker run -t -p 8000:8000 -v $HOME/splunk/var:/opt/splunk/var/lib/splunk  -v $HOME/splunk/apps:/opt/splunk/etc/apps -v $HOME/splunk/log:/var/log/myapp -i nlab/splunk  /bin/bash
 {% endhighlight %}
 
-Splunk se lance par défaut sur le port 8000. Son répertoire d'installation est `/opt/splunk/`. Je mappe les répertoires suivant:
+Splunk se lance par défaut sur le port 8000. Son répertoire d'installation est `/opt/splunk/`. Je mappe les répertoires suivants:
 
 * `$HOME/splunk/var => /opt/splunk/var/lib/splunk`: contient les datas
 * `$HOME/splunk/apps => /opt/splunk/etc/apps`: contient les applications splunk
@@ -85,8 +86,8 @@ Ensuite dans le container je lance Splunk par cette commande:
 
 ## Configuration
  
-Splunk peut être configuré de plusieurs façon: ligne de commande, fichiers de configuration, interface REST, interface web. 
-Les fichiers de configuration de splunk sont de [type ini](http://en.wikipedia.org/wiki/INI_file)   
+Splunk peut être configuré de plusieurs façons: ligne de commande, fichiers de configuration, interface REST, interface web. 
+Les fichiers de configuration de splunk sont de [type ini](http://en.wikipedia.org/wiki/INI_file).   
 
 Il est conseillé de centraliser les ajouts dans une application Splunk plutôt que de modifier directement les fichiers de configuration `$SPLUNK/etc/system`.
 La création d'une application est simple et peut se faire en ligne de commande ou via [l'interface web](http://docs.splunk.com/Documentation/Splunk/latest/AdvancedDev/BuildApp).
@@ -94,18 +95,18 @@ La création d'une application est simple et peut se faire en ligne de commande 
 
 ### Application
 
-Je crée l'application `nlab` via l'interface web `/opt/splunk/etc/apps/nlab/`
+Nous allons créer l'application `nlab` via l'interface web `/opt/splunk/etc/apps/nlab/`
 
 ![Splunk](/assets/2015-05-26-operational-intelligence-splunk/create-app.png)
 
 
 ### Indexes
 
-Je créé deux indexes `NLAB_LOGS` et `NLAB_METRICS` qui vont servir à stocker respectivement les logs et les metrics  
+Nous créons deux indexes `NLAB_LOGS` et `NLAB_METRICS` qui vont servir à stocker respectivement les logs et les metrics  
 
 La configuration des indexes est stockée dans le fichier [`indexes.conf`](http://docs.splunk.com/Documentation/Splunk/latest/Admin/Indexesconf)
 qui est stocké dans le répertoire de l'application `/opt/splunk/etc/apps/nlab/local`. 
-Pas de fioriture, je ne mets que le strict minimum: le répertoire de stockage des données suivant leurs états. 
+Pas de fioriture, nous ne mettons que le strict minimum: le répertoire de stockage des données suivant leurs états. 
 
 {% highlight ini linenos %}
 [NLAB_LOGS]
@@ -200,18 +201,19 @@ Nous allons pouvoir rechercher les events par index:
 
 ## Affichage des logs
 
-L'affichage des events est brute. Une table dédiée peut être créé n'affichant que les fields d'intêret. Nous utilisons pour cela la fonction [`table`](http://docs.splunk.com/Documentation/Splunk/6.2.3/SearchReference/Table) 
+L'affichage des events est brute. Une table dédiée peut être créé n'affichant que les fields d'intêrets. Nous utilisons pour cela la fonction [`table`](http://docs.splunk.com/Documentation/Splunk/6.2.3/SearchReference/Table) 
 qui prend une liste de fields: `index="nlab_logs" | table timestamp level thread logger message`:
 
 ![Splunk](/assets/2015-05-26-operational-intelligence-splunk/events-logs-table.png)
 
-Cette affichage pourrait être encore raffinée en ne cherchant que les logs de niveau `ERROR`: `index="nlab_logs" level=ERROR | table timestamp level thread logger message`.
+Cet affichage pourrait être encore raffiné en ne cherchant que les logs de niveau `ERROR`: `index="nlab_logs" level=ERROR | table timestamp level thread logger message`.
 
 
 ## Graphing
 
-Le premier graphe à afficher est celui de la mémoire utilisée. 
- Pour ce faire nous pouvons utiliser la query suivante `index="nlab_metrics" | timechart max("args.heap.HeapMemoryUsage.used")` qui utilise la fonction [`timechart`](http://docs.splunk.com/Documentation/Splunk/latest/SearchReference/Timechart).
+Le premier graphe que nous allons afficher est celui de la mémoire utilisée. 
+ Pour ce faire nous pouvons utiliser la query suivante `index="nlab_metrics" | timechart max("args.heap.HeapMemoryUsage.used")` 
+ qui utilise la fonction [`timechart`](http://docs.splunk.com/Documentation/Splunk/latest/SearchReference/Timechart).
 
 ![Splunk](/assets/2015-05-26-operational-intelligence-splunk/vizualize_used.png)
 
@@ -270,7 +272,7 @@ Nous la sauvons en tant qu'alerte
 
 ![Splunk](/assets/2015-05-26-operational-intelligence-splunk/alert-create-2.png)
 
-Le système d'alerte se basant sur l'index, nous aurions pu créer une alerte sur l'index de logs associé au niveau de log ERROR donnant une query de ce type
+Le système d'alerte se basant sur l'index, nous aurions pu créer une alerte sur l'index de logs associée au niveau de log ERROR donnant une query de ce type
 `index=nlab_logs level=ERROR earliest=-60s`
 
 
@@ -279,17 +281,18 @@ Le système d'alerte se basant sur l'index, nous aurions pu créer une alerte su
 
 Dans cet article nous n'avons survolé qu'une partie des possibilités offertes par Splunk:
 
-* Splunk peut être [clusterisé et répliqué](http://docs.splunk.com/Documentation/Splunk/6.2.3/Indexer/Aboutclusters) suivant différentes topologie 
+* Splunk peut être [clusterisé et répliqué](http://docs.splunk.com/Documentation/Splunk/6.2.3/Indexer/Aboutclusters) suivant différentes topologies 
     (eg. noeuds indexer, noeuds searcher).
 * L'extraction des logs sur un serveur distant peut et doit être réalisée en utilisant un [`Splunk Universal Forwarder`](http://www.splunk.com/en_us/download/universal-forwarder.html) 
-    qui est configuré en utilisant les mêmes mécanismes que ceux que nous avons vu.
-* Dans sa version Enterprise, il permet la gestion d'un ensemble de forwarders et de leurs configurations qui est donc centralisées et poussées du serveur vers le forwarder, 
-    configuration associée via un système de classificateur (par host, ip...)
+    qui est configuré en utilisant les mêmes mécanismes que ceux que nous avons vus.
+* Dans sa version Enterprise, il permet la gestion d'un ensemble de forwarders et de leurs configurations qui est donc centralisées et poussées du serveur vers le forwarder. 
+    La configuration est associée via un système de classificateur (par host, ip...)
 * Splunk possède un écosystème [d'apps et addons](https://splunkbase.splunk.com/), citons notamment [Splunk App for Unix and Linux](https://splunkbase.splunk.com/app/273/)
 * Il permet la création de dashboard et il offre également un SDK 
 * L'aspect exploitation des logs peut être poussé en utilisant un ensemble de [commandes et de fonctions](http://docs.splunk.com/Documentation/Splunk/latest/SearchReference/WhatsInThisManual)
 * [...]
 
+Qu'en est-il de l'existant Open Source ? 
 
 ## Existant Open Source ## 
 
@@ -315,11 +318,13 @@ La liste des fonctionnalités des projets listés ci-dessous, une fois mis bout 
 et la mise en haute disponibilité de chacun de ces élements pourrait faire l'objet d'un sujet dédié 
 (eg. pour graphite [The architecture of clustering Graphite](https://grey-boundary.io/the-architecture-of-clustering-graphite/)).
 
-Pour m'être frotté à la mise en place de cette stack open source avec en prime sa *puppetisation*, le faire ne fut pas nécessairement rapide et simple (et c'est sans parler de l'aspect HA).
+Pour m'être frotté à la mise en place de cette stack open source avec en prime sa *puppetisation*, le faire ne fut pas nécessairement rapide et simple (et c'est sans parler de 
+l'aspect haute disponibilité).
  
  
 ## Pour conclure 
- 
+
+Splunk a rempli son rôle est un minimum d'installation et de manipulation. 
 **Le point majeur est à mon sens l'aspect intégré et homogène de la solution**. Qui a un coût bien sur.
 
 Mon bémol porte pour l'instant sur les aspects graphing qui bien [qu'il soit riche](http://docs.splunk.com/Documentation/Splunk/6.2.3/Viz/Visualizationreference#Charts) ne me semble
