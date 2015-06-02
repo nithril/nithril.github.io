@@ -10,8 +10,8 @@ comments: true
 
 Splunk est un applicatif closed source avec un business model payant fondé sur la volumétrie de log/day. Il ingère des datas de type logs et offre des features de data mining, expoitation, visualisation et extraction.
 
-Dans cet article nous allons installer Splunk, configurer l'extraction de logs et de metrics, exploiter les logs dans une recherche simple et afficher des metrics
- sur un graphique. Pour finir nous créerons une alerte associée.
+Dans cet article nous allons installer Splunk, configurer l'extraction de logs et de metrics, exploiter les logs dans une recherche simple, afficher des metrics
+ sur un graphique puis créer une alerte associée. Pour finir je concluerai en faisant un parallèle avec les solutions open sources. 
 
 <!--more-->
 
