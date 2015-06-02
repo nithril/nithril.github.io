@@ -313,6 +313,8 @@ est une bonne base présentant les outils Open Source nécessaires à notre beso
 * [Seyren](https://github.com/scobal/seyren): Application d'alerting qui se branche à graphite. Il possède un nombre appréciable de canaux. Il nécessite MongoDB.
 
 
+--------------------------------------------------------------
+
 La liste n'est pas exhaustive et il y a bien sur des variations, [InfluxDB](http://influxdb.com/) au lieu de graphite, Nagios au lieu de Seyren...
 La liste des fonctionnalités des projets listés ci-dessous, une fois mis bout à bout, est **conséquente**. Cependant le nombre d'applicatifs impliqués dans la chaine est importante 
 et la mise en haute disponibilité de chacun de ces élements pourrait faire l'objet d'un sujet dédié 
@@ -325,6 +327,7 @@ l'aspect haute disponibilité).
 ## Pour conclure 
 
 Splunk a rempli son rôle est un minimum d'installation et de manipulation. 
+
 **Le point majeur est à mon sens l'aspect intégré et homogène de la solution**. Qui a un coût bien sur.
 
 Mon bémol porte pour l'instant sur les aspects graphing qui bien [qu'il soit riche](http://docs.splunk.com/Documentation/Splunk/6.2.3/Viz/Visualizationreference#Charts) ne me semble
