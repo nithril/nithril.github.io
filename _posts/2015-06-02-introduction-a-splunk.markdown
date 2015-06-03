@@ -10,7 +10,7 @@ comments: true
 
 Splunk est un applicatif d'intelligence opérationnelle. Il extrait et indexe des datas et offre des features de data mining: extraction, exploitation et visualisation.
  
-C'est un applicatif closed source fondé sur un business model payant en relation avec la volumétrie de data indexé par jour. 
+C'est un applicatif closed source fondé sur un business model payant en relation avec la volumétrie de data indexée par jour. 
 
 Dans cet article nous allons installer Splunk, configurer l'extraction de logs et de metrics, exploiter les logs dans une recherche simple, afficher des metrics
  sur un graphique puis créer une alerte associée. Pour finir je concluerai en faisant un parallèle avec les solutions open sources. 
