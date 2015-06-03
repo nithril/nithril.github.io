@@ -52,6 +52,7 @@ Splunk et l'application pourront accéder au même répertoire de logs. Donc pas
 ## Installation du package
 
 Je passe par docker pour minimiser les impacts sur ma machine. Attention, le téléchargement du package nécessite d'être enregistré sur leur site.
+Le dockerfile se résume à l'installation du package deb:
 {% highlight text linenos %}
 FROM ubuntu:14.04
 ADD package/splunk-6.2.3-264376-linux-2.6-amd64.deb /tmp/splunk-6.2.3-264376-linux-2.6-amd64.deb
@@ -72,7 +73,7 @@ sudo docker run -t -p 8000:8000 -v $HOME/splunk/var:/opt/splunk/var/lib/splunk  
 
 Splunk se lance par défaut sur le port 8000. Son répertoire d'installation est `/opt/splunk/`. Je mappe les répertoires suivants:
 
-* `$HOME/splunk/var => /opt/splunk/var/lib/splunk`: contient les datas
+* `$HOME/splunk/var => /opt/splunk/var/lib/splunk`: contient les datas (indexes...)
 * `$HOME/splunk/apps => /opt/splunk/etc/apps`: contient les applications splunk
 * `$HOME/splunk/log => /var/log/myapp`: contient les logs à indexer 
 
