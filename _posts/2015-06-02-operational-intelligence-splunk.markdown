@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Splunk"
+title:  "Splunk - Operational Intelligence"
 date:   2015-06-02 14:58:46
 categories: Splunk
 comments: true
@@ -17,7 +17,7 @@ Dans cet article nous allons installer Splunk, configurer l'extraction de logs e
 
 # Splunk en quelques mots
 
-Splunk c'est sous la plume du marketing (http://www.splunk.com/): 
+Splunk c'est sous la plume du [marketing](http://www.splunk.com/): 
 
 > You see servers and devices, apps and logs, traffic and clouds. We see data—everywhere. Splunk® offers the leading platform for Operational Intelligence. It enables the curious to look closely at what others ignore—machine data—and find what others never see: insights that can help make your company more productive, profitable, competitive and secure. What can you do with Splunk? Just ask.
 
@@ -46,13 +46,14 @@ pour être lu par les Machines. Je publierai un article portant sur le logging e
 Les fichiers de logs seront stockés dans `/var/log/myapp`. Pour contraindre l'article à une taille raisonnable, 
 Splunk et l'application pourront accéder au même répertoire de logs. Donc pas de forwarder.
  
+Vous pourrez trouver les sources de cet article [sur github](https://github.com/nithril/article-splunk-operational-intelligence).
 
 # Installation de Splunk
 
 ## Installation du package
 
 Je passe par docker pour minimiser les impacts sur ma machine. Attention, le téléchargement du package nécessite d'être enregistré sur leur site.
-Le dockerfile se résume à l'installation du package deb:
+Le dockerfile se résume à l'installation du package debian:
 {% highlight text linenos %}
 FROM ubuntu:14.04
 ADD package/splunk-6.2.3-264376-linux-2.6-amd64.deb /tmp/splunk-6.2.3-264376-linux-2.6-amd64.deb
@@ -83,7 +84,7 @@ Ensuite dans le container je lance Splunk par cette commande:
 /opt/splunk/bin/splunk start --accept-license --answer-yes
 {% endhighlight %}
 
-
+Et voila, splunk est lancé et accessible via l'adresse `http://localhost:8000`.
 
 ## Configuration
  
@@ -317,22 +318,26 @@ est une bonne base présentant les outils Open Source nécessaires à notre beso
 --------------------------------------------------------------
 
 La liste n'est pas exhaustive et il y a bien sur des variations, [InfluxDB](http://influxdb.com/) au lieu de graphite, Nagios au lieu de Seyren...
-La liste des fonctionnalités des projets listés ci-dessous, une fois mis bout à bout, est **conséquente**. Cependant le nombre d'applicatifs impliqués dans la chaine est importante 
+La liste des fonctionnalités des projets listés ci-dessous, une fois mis bout à bout, est **conséquente**. Cependant le nombre d'applicatifs impliqués dans la chaine est important 
 et la mise en haute disponibilité de chacun de ces élements pourrait faire l'objet d'un sujet dédié 
 (eg. pour graphite [The architecture of clustering Graphite](https://grey-boundary.io/the-architecture-of-clustering-graphite/)).
 
 Pour m'être frotté à la mise en place de cette stack open source avec en prime sa *puppetisation*, le faire ne fut pas nécessairement rapide et simple (et c'est sans parler de 
-l'aspect haute disponibilité).
+l'aspect haute disponibilité). Le résultat était satisfaisant surtout sur les aspects monitoring. Difficile de justifier l'installation d'un mongodb pour le seul besoin de stocker des alertes.  
  
+Demeurait l'impression que le dashboard opérationnel était constitué de trois applications (Graphana, Kibana, Seyren) non intégré. 
  
 ## Pour conclure 
 
-Splunk a rempli son rôle est un minimum d'installation et de manipulation. 
+**Le point majeur est à mon sens l'aspect intégré et homogène de la solution**. Qui a un coût bien sur. 
 
-**Le point majeur est à mon sens l'aspect intégré et homogène de la solution**. Qui a un coût bien sur.
+Splunk a rempli son rôle est un minimum d'installation et de manipulation et les mêmes principes sont appliqués du serveur au forwarder.
+
+L'aspect exploitation des logs est à première vu satisfaisant. Reste à valider que cette typologie d'accès au log se rapproche d'une consultation `vi`. 
 
 Mon bémol porte pour l'instant sur les aspects graphing qui bien [qu'il soit riche](http://docs.splunk.com/Documentation/Splunk/6.2.3/Viz/Visualizationreference#Charts) ne me semble
 pas égaler les possibilités et la facilité offertes par Graphite.
+
 
 
 
