@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Splunk - Operational Intelligence"
+title:  "Introduction à Splunk"
 date:   2015-06-02 14:58:46
 categories: Splunk
 comments: true
