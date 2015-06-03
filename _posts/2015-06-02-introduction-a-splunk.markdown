@@ -8,7 +8,7 @@ comments: true
 
 <img style="float: left;margin-right:20px;" src="/assets/2015-06-02-operational-intelligence-splunk/splunk.png">
 
-Splunk est un applicatif closed source d'intelligence opérationnelle. Il extrait et indexe des datas et offre des features de data mining: extraction, exploitation et visualisation.
+Splunk est un applicatif d'intelligence opérationnelle. Il extrait et indexe des datas et offre des features de data mining: extraction, exploitation et visualisation.
  
 C'est un applicatif closed source fondé sur un business model payant en relation avec la volumétrie de data indexé par jour. 
 
