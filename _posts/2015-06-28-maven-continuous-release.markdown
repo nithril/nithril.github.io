@@ -259,6 +259,13 @@ The versions plugin updates `dependency.version` using the provided restrictions
 
 # Conclusion
 
-We get continuous release everywhere with continuous integration pressure. Every artifact is releasable
-without the burden of a release process. 
+We get continuous release for application and dependencies with continuous integration pressure. 
+Every artifact is releasable without the burden of a release process. 
+The same pipeline can be used to do CI and to generate a promotable artifact.  
+  
+
+
+
+
+
 
