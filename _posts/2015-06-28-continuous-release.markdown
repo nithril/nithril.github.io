@@ -122,7 +122,8 @@ Note: All goals does not supports Maven properties defined in the root pom and u
 
 ## Fixing the dependency version 
 
-The only suitable option is the goal `versions:resolve-ranges`. **Application** must depend on **Dependency** using a [version range](https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html) instead of a SNAPSHOT.
+The only suitable option is the `versions:resolve-ranges` goal. **Application** must depend on **Dependency** using a 
+[version range](https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html) instead of a SNAPSHOT.
 In our case the range is `[1.2.0,1.2.0-99999]`:
 
 {% highlight xml linenos %}
@@ -136,10 +137,10 @@ In our case the range is `[1.2.0,1.2.0-99999]`:
 
 The **Application** now depends only on deployed version of **Dependency** and no longer depends on a SNAPSHOT dependency.
 
-To fix the range we call the `resolve-ranges` goal:
+To fix the range we call the `versions:resolve-ranges` goal:
 
 {% highlight bash linenos %}
-mvn versions:resolve-ranges
+#> mvn versions:resolve-ranges
 {% endhighlight %}
 
 The dependency is now:
