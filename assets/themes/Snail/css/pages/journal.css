@@ -124,7 +124,7 @@
 	font-size:16px;
 }
 .the-article blockquote::before,.the-article blockquote::after {
-	font-size:60px;
+	font-size:35px;
 	font-family:georgia,serif;
 	color:#999;
 }
