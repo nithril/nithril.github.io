@@ -164,16 +164,12 @@ The dependency is now:
 
 # Continuous Integration Pressure
 
-The drawback of SNAPSHOT and version range is their volatile nature. A build or the tests of **Application** may failed because of
- a new version of **Dependency**. 
-
 The Continuous Integration Pressure is the concept that a an **Application** that depends on **Dependency** must test the integration
  with **Dependency** when a new version is deployed prior to integrating this new version. 
 
 On the CI side, a new version of **Dependency** will automatically trigger the integration test of all **Application** that depend on it.
 
-There is different level.
-
+There are different levels.
 
 ## **Application** depends on **Dependency** using a version range
 
@@ -182,6 +178,9 @@ use the latest build number. No modification of the above process is needed.
 
 ## **Application** depends on **Dependency** using a fixed version
 
+The drawback of SNAPSHOT and version range is their volatile nature. A build or the tests of **Application** may failed because of
+ a new version of **Dependency**. A fixed version resolves this issue.
+ 
 On the CI side, a new version of **Dependency** will automatically trigger the **Application** integration pipelines. 
 This integration pipeline :
 * Updates the fixed version of **Dependency** 
@@ -193,16 +192,16 @@ It involves some modification of the process.
 ### Continuous release without build number
 
 if the incremental or minor part of the version is used to do continuous release, the **Dependency** version could be updated using `versions:use-latest-releases`
-and its properties (eg. `allowIncrementalUpdates`). That's it.
+and its properties (eg. `allowIncrementalUpdates`). That's it the version is updated.
 
 
 ### Continuous release with build number
 
-Vincent Latombe on the CastCodeur mailing list suggest me this process 
+Vincent Latombe [on the CastCodeur mailing list[https://groups.google.com/d/msg/lescastcodeurs/yig2NTbr6vo/l1jxrLV5wHsJ) suggest me this process (in french). 
 
-If a range is used it involves more configuration. We should retain the range in the POM to be able to fix the **Dependency** version.
+If a range is used it involves more configuration. We should retain the range somewhere in the POM to be able to fix the **Dependency** version.
   
-For this purpose we use the `update-properties` and configure it using the `properties` property which allows to
+For this purpose we use the `versions:update-properties` goal using the `properties` property which allows to
 add restrictions that apply to specific properties. 
 We create a `dependency.version` maven property which holds the current version of **Dependency**.  
 **Dependency** version is set to this property.
@@ -250,9 +249,6 @@ The versions plugin updates `dependency.version` using the provided restrictions
 
 # Conclusion
 
-
-As stated above, the **Application** now depends only on deployed version of **Dependency** and no longer depends on a SNAPSHOT dependency. 
-Thus only release deployed through the CI process can be used by **Application**.
-
-
+We get continuous release everywhere with the extra benefit of continuous integration pressure. Every artifact is releasable
+without the burden of a release process.
 
