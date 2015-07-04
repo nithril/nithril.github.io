@@ -259,6 +259,6 @@ The versions plugin updates `dependency.version` using the provided restrictions
 
 # Conclusion
 
-We get continuous release everywhere and continuous integration pressure. Every artifact is releasable
+We get continuous release everywhere with continuous integration pressure. Every artifact is releasable
 without the burden of a release process. 
 
