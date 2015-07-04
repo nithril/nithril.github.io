@@ -18,6 +18,8 @@ rely solely on a slightly modified continuous integration pipeline. I will end t
    
 <!--more-->
 
+
+# TOC
 * TOC
 {:toc}
 
@@ -79,7 +81,7 @@ The target process is the following:
 
 # Fix **Application** and **Dependency** version
 
-## Build Number
+## Using a Build Number
 
 To fix the version I will use the build number for three reasons: 
 
@@ -87,7 +89,7 @@ To fix the version I will use the build number for three reasons:
 * A build number relates to a meaningful information (jenkins build number, SCM revision...).    
 * It is not always possible to use the incremental or minor part of the version to do continuous release.
 
-## Fixing the version
+## And the plugin versions
 
 Before compilation we fix the version using the `versions:set` goal:
 
@@ -105,7 +107,7 @@ A build must have a BUILD_NUMBER greater than the previous builds.
  
 # Fix **Application** dependency version
  
-## The available option 
+## The available options
  
 * [`versions:use-releases`](http://www.mojohaus.org/versions-maven-plugin/use-releases-mojo.html): *searches the pom for all -SNAPSHOT versions which have been released and replaces them with the corresponding release version.* 
 
@@ -128,7 +130,7 @@ A build must have a BUILD_NUMBER greater than the previous builds.
 Note: All goals does not supports Maven properties defined in the root pom and used in a module. For this case `dependencyManagement` may be used in the root pom.
 
 
-## Fixing the dependency version 
+## Range to the rescue
 
 The only suitable option is the `versions:resolve-ranges` goal. **Application** must depend on **Dependency** using a 
 [version range](https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html) instead of a SNAPSHOT.
@@ -167,8 +169,12 @@ The dependency is now:
 
 # Continuous Integration Pressure
 
-The Continuous Integration Pressure is the concept that a an **Application** that depends on **Dependency** must test the integration
- with **Dependency** when a new version is deployed prior to integrating this new version. 
+The Continuous Integration Pressure concept is simple: When a new version of **Dependency** is deployed it must trigger the pipeline of **Application** in order to
+test the integration of **Dependency** into **Application**
+
+The concept could go further, **Application** must test the integration prior to integrating the new version of **Dependency**. If the test failed, the integration
+should be reviewed but must not block the developers or the pipeline.
+
 
 On the CI side, a new version of **Dependency** will automatically trigger the integration test of all **Application** that depend on it.
 
@@ -186,6 +192,7 @@ The drawback of SNAPSHOT and version range is their volatile nature. A build or 
  
 On the CI side, a new version of **Dependency** will automatically trigger the **Application** integration pipelines. 
 This integration pipeline :
+
 * Updates the fixed version of **Dependency** 
 * Launches the test
 * If tests are ok, the version change is committed 
@@ -253,5 +260,5 @@ The versions plugin updates `dependency.version` using the provided restrictions
 # Conclusion
 
 We get continuous release everywhere and continuous integration pressure. Every artifact is releasable
-without the burden of a release process.
+without the burden of a release process. 
 
