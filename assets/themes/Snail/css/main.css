@@ -1363,3 +1363,11 @@ a.action-icon.action-solution {
 	background-position:-90px 0;
 	width:14px;
 }
+
+
+.markdown-toc{
+
+	position: fixed;
+
+
+}
