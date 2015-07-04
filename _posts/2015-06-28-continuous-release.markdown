@@ -27,10 +27,10 @@ Because a non snapshot build must be reproducible no modification are allowed on
 
 # Scenario
 
-We have two projects: *Application* and `Dependency`. Developments of *Application* and `Dependency` are coupled for an iteration 
-because *Application* needs a feature of `Dependency`.
+We have two projects: **Application*** and `Dependency`. Developments of **Application** and `Dependency` are coupled for an iteration 
+because **Application** needs a feature of `Dependency`.
 
-* *Application* 1.0.0-SNAPSHOT
+* **Application** 1.0.0-SNAPSHOT
 {% highlight xml linenos %}
 <project>
     <groupId>org.nlab.article.release</groupId>
@@ -69,7 +69,7 @@ The target process is the following:
 
 
 
-# Fix *Application* and `Dependency` version
+# Fix **Application** and `Dependency` version
 
 ## Build Number
 
@@ -91,7 +91,7 @@ A build must have a BUILD_NUMBER greater than the previous builds.
 Application and Dependency versions are now fixed.
  
  
-# Fix *Application* dependency version
+# Fix **Application** dependency version
  
 ## The available option 
  
@@ -113,7 +113,7 @@ Note: All goals does not supports Maven properties defined in the root pom and u
 
 ## Fixing the dependency version 
 
-The only suitable option is the goal `versions:resolve-ranges`. *Application* must depend on `Dependency` using a [version range](https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html) instead of a SNAPSHOT.
+The only suitable option is the goal `versions:resolve-ranges`. **Application** must depend on `Dependency` using a [version range](https://maven.apache.org/enforcer/enforcer-rules/versionRanges.html) instead of a SNAPSHOT.
 In our case the range is `[1.2.0,1.2.0-99999]`:
 
 {% highlight xml linenos %}
@@ -125,7 +125,7 @@ In our case the range is `[1.2.0,1.2.0-99999]`:
 {% endhighlight %}
 
 
-The *Application* now depends only on deployed version of `Dependency` and no longer depends on a SNAPSHOT dependency.
+The **Application** now depends only on deployed version of `Dependency` and no longer depends on a SNAPSHOT dependency.
 
 To fix the range we call the `resolve-ranges` goal:
 
@@ -150,32 +150,32 @@ The dependency version is now fixed.
 # Benefit of this process
  
 
-As stated above, the *Application* now depends only on deployed version of `Dependency` and no longer depends on a SNAPSHOT dependency. 
-Thus only release deployed through the CI process can be used by *Application*.
+As stated above, the **Application** now depends only on deployed version of `Dependency` and no longer depends on a SNAPSHOT dependency. 
+Thus only release deployed through the CI process can be used by **Application**.
 
 
 
 # Continuous Integration Pressure
 
-The drawback of SNAPSHOT and version range is their volatile nature. A build or the tests of *Application* may failed because
+The drawback of SNAPSHOT and version range is their volatile nature. A build or the tests of **Application** may failed because
  a new version of `Dependency` is deployed. 
 
-The Continuous Integration Pressure is the concept that a every *Application* that depend on `Dependency` must test the integration
+The Continuous Integration Pressure is the concept that a every **Application** that depend on `Dependency` must test the integration
  with `Dependency` when a new version is deployed prior to integrating this new version. 
 
- On the CI side, a new version of `Dependency` will automatically trigger the integration test of all *Application* that depend on it.
+ On the CI side, a new version of `Dependency` will automatically trigger the integration test of all **Application** that depend on it.
 
 There is different level.
 
 
-## *Application* depends on `Dependency` using a version range
+## **Application** depends on `Dependency` using a version range
 
-On the CI side, a new version of `Dependency` will automatically trigger the pipelines of *Application* that depend on it. As *Application* is using a range, the build will
+On the CI side, a new version of `Dependency` will automatically trigger the pipelines of **Application** that depend on it. As **Application** is using a range, the build will
 use the latest build number. No modification of the above process is needed.
 
-## *Application* depends on `Dependency` using a fixed version
+## **Application** depends on `Dependency` using a fixed version
 
-On the CI side, a new version of `Dependency` will automatically trigger the integration pipelines of *Application* that depend on it. 
+On the CI side, a new version of `Dependency` will automatically trigger the integration pipelines of **Application** that depend on it. 
 This integration pipeline :
 * Updates the fixed version of `Dependency` 
 * Launches the test
