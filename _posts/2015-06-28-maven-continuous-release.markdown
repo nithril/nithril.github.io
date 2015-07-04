@@ -79,7 +79,7 @@ The target process is the following:
 
 
 
-# Fix **Application** and **Dependency** version
+# Fix **Application** and **Dependency** versions
 
 ## Using a Build Number
 
