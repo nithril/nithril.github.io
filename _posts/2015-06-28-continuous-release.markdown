@@ -31,6 +31,7 @@ We have two projects: **Application** and **Dependency**. Developments of **Appl
 because **Application** needs a feature of **Dependency**.
 
 * **Application** 1.0.0-SNAPSHOT
+
 {% highlight xml linenos %}
 <project>
     <groupId>org.nlab.article.release</groupId>
@@ -38,7 +39,9 @@ because **Application** needs a feature of **Dependency**.
     <version>1.0.0-SNAPSHOT</version>
 </project>
 {% endhighlight %}
+
 * **Dependency** 1.2.0-SNAPSHOT
+
 {% highlight xml linenos %}
 <project>
     <groupId>org.nlab.article.release</groupId>
@@ -47,7 +50,8 @@ because **Application** needs a feature of **Dependency**.
 </project>
 {% endhighlight %}
 
-Application depends on Dependency:
+**Application** depends on **Dependency**:
+
 {% highlight xml linenos %}
 <dependency>
     <groupId>org.nlab.article.release</groupId>
@@ -60,10 +64,11 @@ Application depends on Dependency:
 # The process
 
 The target process is the following:
+
 * Fix version of the project
 * Fix version of the dependencies
 * Compile, Test, Package, Deploy
-* If the project passes the automated and manuel test:
+* If the project passes all the tests:
 ** Promote the project artifact (ie. deploy to the upper environment)
 ** Increase the project version
 
@@ -74,19 +79,23 @@ The target process is the following:
 ## Build Number
 
 To fix the version I will use the build number for three reasons: 
-* We could simply remove the SNAPSHOT qualifier and deploy the release. It is a best practice to deploy only once a release version.
-* A build number relates to an information with a meaning (jenkins build number, SCM revision...).    
+
+* It is a best practice to deploy only once a release version.
+* A build number relates to a meaningful information (jenkins build number, SCM revision...).    
 * It is not always possible to use the incremental or minor part of the version to do continuous release.
 
 ## Fixing the version
 
-Before compilation we fix the version
+Before compilation we fix the version using the `versions:set` goal:
+
 {% highlight bash linenos %}
 mvn build-helper:parse-version versions:set -DnewVersion=${parsedVersion.majorVersion}.${parsedVersion.minorVersion}.${parsedVersion.incrementalVersion}-${BUILD_NUMBER}
 {% endhighlight %}
 
 Where [BUILD_NUMBER](http://www.mojohaus.org/versions-maven-plugin/version-rules.html) can be a number coming from the SCM or the Jenkins Job build number. 
 A build must have a BUILD_NUMBER greater than the previous builds.
+
+`build-helper:parse-version` is a convenient method to extract the version component.
 
 Application and Dependency versions are now fixed.
  
@@ -95,18 +104,18 @@ Application and Dependency versions are now fixed.
  
 ## The available option 
  
-> [`versions:use-releases`](http://www.mojohaus.org/versions-maven-plugin/use-releases-mojo.html): searches the pom for all -SNAPSHOT versions which have been released and replaces them with the corresponding release version. 
-Only update version using version without qualifier/build number. Not suitable. 
+* [`versions:use-releases`](http://www.mojohaus.org/versions-maven-plugin/use-releases-mojo.html): "searches the pom for all -SNAPSHOT versions which have been released and replaces them with the corresponding release version." 
+    Only update version using version without qualifier/build number. Not suitable. 
 
-> [`versions:use-latest-releases`](http://www.mojohaus.org/versions-maven-plugin/use-latest-releases-mojo.html): searches the pom for all versions which have been a newer version and replaces them with the latest version. 
-Update version using latest release. Update scope is configurable (eg. [`allowIncrementalUpdates`](http://www.mojohaus.org/versions-maven-plugin/use-latest-releases-mojo.html#allowIncrementalUpdates).
-May be useful if continuous release is done using the incremental version.
+* [`versions:use-latest-releases`](http://www.mojohaus.org/versions-maven-plugin/use-latest-releases-mojo.html): "searches the pom for all versions which have been a newer version and replaces them with the latest version." 
+    Update version using latest release. Update scope is configurable (eg. [`allowIncrementalUpdates`](http://www.mojohaus.org/versions-maven-plugin/use-latest-releases-mojo.html#allowIncrementalUpdates).
+    May be useful if continuous release is done using the incremental version.
  
-> [`versions:resolve-ranges`](http://www.mojohaus.org/versions-maven-plugin/resolve-ranges-mojo.html): finds dependencies using version ranges and resolves the range to the specific version being used.  
-Suitable if **Dependency** version is defined as a range.
+* [`versions:resolve-ranges`](http://www.mojohaus.org/versions-maven-plugin/resolve-ranges-mojo.html): "finds dependencies using version ranges and resolves the range to the specific version being used." 
+    Suitable if **Dependency** version is defined as a range.
 
-> [`versions:update-properties`](http://www.mojohaus.org/versions-maven-plugin/update-properties-mojo.html): updates properties defined in a project so that they correspond to the latest available version of specific dependencies. This can be useful if a suite of dependencies must all be locked to one version.
-Suitable if **Dependency** version property is defined as a range. As we see, this goal add another level of flexibility.
+* [`versions:update-properties`](http://www.mojohaus.org/versions-maven-plugin/update-properties-mojo.html): "updates properties defined in a project so that they correspond to the latest available version of specific dependencies. This can be useful if a suite of dependencies must all be locked to one version."
+    Suitable if **Dependency** version property is defined as a range. As we see, this goal add another level of flexibility.
 
 Note: All goals does not supports Maven properties defined in the root pom and used in a module. For this case `dependencyManagement` may be used in the root pom.
 
