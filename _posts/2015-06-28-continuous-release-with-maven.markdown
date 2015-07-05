@@ -68,15 +68,21 @@ because **Application** needs a feature of **Dependency**.
 
 # The process
 
-The target process is the following:
+The target process is a slightly modified continuous integration pipeline:
 
-* Fix version of the project
-* Fix version of the dependencies
+* Fix versions:
+  * Project version
+  * Dependency versions
 * Compile, Test, Package, Deploy
 * If the project passes all the tests:
-** Promote the project artifact (ie. deploy to the upper environment)
-** Increase the project version
+  * Promote the project artifact (ie. deploy to the upper environment)
+  * Increase the project version
 
+
+This process does not involve the common release steps: no need to remove snapshot qualifier, commit and wait
+for the jenkins pipeline to finish. The usual continuous integration pipeline is self sufficient and generate a releasable
+ artifact.
+  
 
 
 # Fix **Application** and **Dependency** versions
