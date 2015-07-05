@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Maven Continuous Release"
+title:  "Continuous Release With Maven"
 date:   2015-06-28 10:18:46
 categories: CR
 comments: true
