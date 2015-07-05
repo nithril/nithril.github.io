@@ -185,6 +185,7 @@ should be reviewed but must not block the developers or the pipeline.
 On the CI side, a new version of **Dependency** will automatically trigger the integration test of all **Application** that depend on it.
 
 There are different levels:
+
 * **Application** depends on **Dependency** using a version range
 * **Application** depends on **Dependency** using a fixed version
 
