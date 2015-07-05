@@ -19,7 +19,7 @@ rely solely on a slightly modified continuous integration pipeline. I will end t
 <!--more-->
 
 
-# TOC
+# ToC
 * TOC
 {:toc}
 
