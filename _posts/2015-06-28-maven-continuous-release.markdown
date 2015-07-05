@@ -178,14 +178,16 @@ should be reviewed but must not block the developers or the pipeline.
 
 On the CI side, a new version of **Dependency** will automatically trigger the integration test of all **Application** that depend on it.
 
-There are different levels.
+There are different levels:
+* **Application** depends on **Dependency** using a version range
+* **Application** depends on **Dependency** using a fixed version
 
-## **Application** depends on **Dependency** using a version range
+## Using a version range
 
 On the CI side, a new version of **Dependency** will automatically trigger the **Application** pipeline. As **Application** is using a range, the build will
 use the latest build number. No modification of the above process is needed.
 
-## **Application** depends on **Dependency** using a fixed version
+## Using a fixed version
 
 The drawback of SNAPSHOT and version range is their volatile nature. A build or the tests of **Application** may failed because of
  a new version of **Dependency**. A fixed version resolves this issue.
