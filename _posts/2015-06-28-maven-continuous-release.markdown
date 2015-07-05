@@ -269,5 +269,3 @@ The same pipeline can be used to do CI and to generate a promotable artifact.
 
 
 
-
-
