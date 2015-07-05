@@ -209,7 +209,7 @@ and its properties (eg. `allowIncrementalUpdates`). That's it the version is upd
 
 ### Continuous release with build number
 
-Vincent Latombe [on the CastCodeur mailing list[https://groups.google.com/d/msg/lescastcodeurs/yig2NTbr6vo/l1jxrLV5wHsJ) suggest me this process (in french). 
+Vincent Latombe [on the CastCodeur mailing list](https://groups.google.com/d/msg/lescastcodeurs/yig2NTbr6vo/l1jxrLV5wHsJ) suggests me this process (in french). 
 
 If a range is used it involves more configuration. We should retain the range somewhere in the POM to be able to fix the **Dependency** version.
   
