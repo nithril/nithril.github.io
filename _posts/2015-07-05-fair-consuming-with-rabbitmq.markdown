@@ -29,8 +29,11 @@ We will split the priority per queue. Given a priority range of `[1..N]`, it wil
 We will implement the [Deficit Weighted Round Robin](https://en.wikipedia.org/wiki/Deficit_round_robin) algorithm (DWRR).
 This algorithm is simple and effective:
  
-* It does not involve knowledge of the queues content
+* It does not involve knowledge of the actual queues content
 * On the long term (not so long in human time), it allows to reach the message flow rate associated to a `Qe[i]`.
+
+It involves knowledge of the past content. It is why it's called `Deficit`, past contents decrease the scheduling priority.
+
 
 DWRR is a scheduling algorithm for the network scheduler: the unit of resource is the network bandwidth. Packets are prioritized according to their size and the flow slot.
 
@@ -49,32 +52,26 @@ Q1 has a quantom of 10 and Q2 a quantum of 1. Q1 should have a processing rate 1
 Taken a processing time cost of 1, when Q1 deque 1 message per iteration, Q2 should wait 10 iteration to deque one.
 
 
-# RabbitMQ QoS
-
-TBD
-
 # Implementation
 
 
 ## Slot
 
-Per queue we will define a consumer. RabbitMQ will push message to each consumer according to deque rate. 
-
-First we define the slot. It contains the `quantum`, the `deficit` and the RabbitMQ blocking queue consumer. 
+Per queue we will define a consumer slot. RabbitMQ will push messages to each consumer according to deque rate.  
+First we define the slot. It contains the `quantum`, the `deficit` and the RabbitMQ queue consumer. 
 
 {% highlight java linenos %}
 public class DwrrSlot {
 
-    private final DwrrBlockingQueueConsumer dwrrBlockingQueueConsumer;
     private final int quantum;
-    private int processedMsg;
     private int deficit;
+    private final DwrrBlockingQueueConsumer consumer;
+    private int processedMsg;
 
-    public DwrrSlot(DwrrBlockingQueueConsumer dwrrBlockingQueueConsumer, int quantum) {
-        this.dwrrBlockingQueueConsumer = dwrrBlockingQueueConsumer;
+    public DwrrSlot(DwrrBlockingQueueConsumer consumer, int quantum) {
+        this.consumer = consumer;
         this.quantum = quantum;
     }
-
 
     public void reset(){
         deficit = 0;
@@ -94,9 +91,11 @@ public class DwrrSlot {
 {% endhighlight %}
 
 
-## The slot consumer
+## The consumer
 
-
+This class subscribes to a RabbitMQ queue and stores delivered messages into `deliveries` collection.
+The `consumerToken` semaphore releases a consumer token for each delivered message. Thus the main loop thread
+can be notified when a new message is available.
 
 {% highlight java linenos %}
 public class DwrrBlockingQueueConsumer {
@@ -104,18 +103,22 @@ public class DwrrBlockingQueueConsumer {
     private final BlockingDeque<QueueingConsumer.Delivery> deliveries;
     private final String queue;
     private final Channel channel;
-    private final Semaphore availableToken;
+    private final Semaphore consumerToken;
     private final InternalConsumer consumer;
 
 
-    public DwrrBlockingQueueConsumer(String queue, Channel channel, Semaphore availableToken, int prefetch) {
+    public DwrrBlockingQueueConsumer(String queue, Channel channel, Semaphore consumerToken, int prefetch) {
         this.queue = queue;
         this.channel = channel;
-        this.availableToken = availableToken;
+        this.consumerToken = consumerToken;
         this.deliveries = new LinkedBlockingDeque<>(prefetch);
         this.consumer = new InternalConsumer(channel);
     }
 
+    /**
+     * Start to consume messages from the queue
+     * @throws IOException
+     */
     public void start() throws IOException {
         channel.basicConsume(queue, false, consumer);
     }
@@ -130,9 +133,92 @@ public class DwrrBlockingQueueConsumer {
         }
         @Override
         public void handleDelivery(String consumerTag, Envelope envelope, AMQP.BasicProperties properties, byte[] body) {
+            //Queue the message
             deliveries.offer(new QueueingConsumer.Delivery(envelope, properties, body));
-            availableToken.release();
+            //Release a consumer token
+            consumerToken.release();
         }
     }
 }
 {% endhighlight %}
+
+
+## The main loop
+
+We see in the main loop the purpose of the `consumerToken` semaphore. The `tryAcquire` allows to park the main loop thread if there is no delivery.
+The release of a `consumerToken` by `DwrrBlockingQueueConsumer.InternalConsumer#handleDelivery` will wake up the main loop thread with a minimal delay. 
+
+{% highlight java linenos %}
+while (true) {
+    int processedMessageCounter = 0;
+
+    //Try to acquire a consumer token, wait for 5 seconds
+    if (consumerToken.tryAcquire(1, 5, TimeUnit.SECONDS)) {
+        //We got a token, a delivery is available
+        for (DwrrSlot slot : slots) {
+            //The deficit is reduced per iteration
+            slot.reduceDeficit();
+
+            //Loop until the slot does not contain any deliveries or until the slot deficit is bellow the message weight
+            while (!slot.getConsumer().getDeliveries().isEmpty() && slot.getDeficit() >= MESSAGE_WEIGHT) {
+                QueueingConsumer.Delivery delivery = slot.getConsumer().getDeliveries().poll();
+                slot.increaseDeficit(MESSAGE_WEIGHT);
+                //Simulate processing time
+                Thread.sleep(0, 1000);
+                //Finally ack the message, so RabbitMQ will push a new one to the slot consumer
+                channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+            }
+            //If the slot does not contain any deliveries, reset the deficit
+            if (slot.getConsumer().getDeliveries().isEmpty()) {
+                slot.reset();
+            }
+        }
+        
+        if (processedMessageCounter > 0) {
+            //If we have processed message, we must acquire the number of processed message minus the first acquire
+            consumerToken.acquire(processedMessageCounter - 1);
+        } else {
+            //If we do not have processed message (because all deficit where < weight) we must release the token
+            consumerToken.release();
+        }
+
+    } else {
+        LOG.info("No message");
+    }
+}
+{% endhighlight %}
+
+
+# RabbitMQ Consumer Prefetch
+
+[Consumer prefetch](https://www.rabbitmq.com/consumer-prefetch.html) is an important RabbitMQ concept
+> AMQP specifies the basic.qos method to allow you to limit the number of unacknowledged messages on a channel (or connection) when consuming (aka "prefetch count").
+
+RabbitMQ will push message to the consumer until the number of unacked messages is reached. 
+The prefetch value must be set according to the processing speed. The priority ratio will be flattened if the processing rate is greater than the RabbitMQ push rate because consumers will wait for messages most of the time 
+
+> The goal is to keep the consumers saturated with work, but to minimise the client's buffer size so that more messages stay in Rabbit's queue and are thus available for new consumers or to just be sent out to consumers as they become free.
+
+See this in depth article [*Some queuing theory: throughput, latency and bandwidth*](https://www.rabbitmq.com/blog/2012/05/11/some-queuing-theory-throughput-latency-and-bandwidth/)
+
+
+# Results
+
+
+Name=p0 Quantum=4  Consumed msg=3741 Msg/s=136.29408
+Name=p1 Quantum=8  Consumed msg=7377 Msg/s=268.76276
+Name=p2 Quantum=12 Consumed msg=11031 Msg/s=401.8872
+Name=p3 Quantum=16 Consumed msg=14556 Msg/s=530.3119
+Name=p4 Quantum=20 Consumed msg=18195 Msg/s=662.88983
+Name=p5 Quantum=24 Consumed msg=21828 Msg/s=795.2492
+Name=p6 Quantum=28 Consumed msg=25408 Msg/s=925.6777
+Name=p7 Quantum=32 Consumed msg=29024 Msg/s=1057.4176
+Name=p8 Quantum=36 Consumed msg=32605 Msg/s=1187.8826
+Name=p9 Quantum=40 Consumed msg=36250 Msg/s=1320.6791
+
+
+
+
+
+
+
