@@ -1,8 +1,8 @@
 ---
 layout: post
 title:  "Fair Consuming With RabbitMQ"
-date:   2015-06-28 10:18:46
-categories: CR
+date:   2015-07-05 10:18:46
+categories: AMQP
 comments: true
 ---
 
@@ -255,9 +255,4 @@ The rate is flattened. My RabbitMQ instance cannot sustain the processing time r
 | p7     | 32      | 20227     | 2039.6289 |
 | p8     | 36      | 20643     | 2081.5771 |
 | p9     | 40      | 20188     | 2035.6963 |
-
-
-
-
-
 
