@@ -7,6 +7,9 @@ comments: true
 ---
 
 
+<img style="float: left;margin-right:20px;" src="/assets/2015-06-28-continuous-release-with-maven/maven_logo.png">
+
+
 Continuous Release process allows an artifact to be continuously **releasable** and promotable to the upper environment. 
   
 The topic has been covered by a large amount of articles, so why this new one? Continuous release of an Application (eg. executable jar, war)

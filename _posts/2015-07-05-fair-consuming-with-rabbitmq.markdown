@@ -6,12 +6,14 @@ categories: CR
 comments: true
 ---
 
+<img style="float: left;margin-right:20px;" src="/assets/2015-07-05-fair-consuming-with-rabbitmq/rabbitmq_logo.png">
+
 This article will present a pattern to achieve fair consuming with RabbitMQ, 
-an AMQP implementation. It will involve weighted queues bound to a consumer which will use fair scheduling.
+an AMQP implementation using a deficit weighted round robin scheduler.
   
 This article is not about RabbitMQ [Priority Queue Support](https://www.rabbitmq.com/priority.html).
 A consumer bounds to a RabbitMQ priority queue will always consume first the messages with the highest priority.
-It doesn't ensure that a message with a low priority will be processed. Indeed high priority message may predate the processing slots.
+It doesn't ensure that a message with a low priority will be processed, high priority messages may predate the processing slots.
 
    
 <!--more-->
@@ -24,36 +26,42 @@ It doesn't ensure that a message with a low priority will be processed. Indeed h
 
 # The Pattern
 
-We will split the priority per queue. Given a priority range of `[1..N]`, it will involve `Qe[i]` queues.
-
 We will implement the [Deficit Weighted Round Robin](https://en.wikipedia.org/wiki/Deficit_round_robin) algorithm (DWRR).
 This algorithm is simple and effective:
  
 * It does not involve knowledge of the actual queues content
-* On the long term (not so long in human time), it allows to reach the message flow rate associated to a `Qe[i]`.
+* On the long term (not so long in human time), it allows to reach the targeted flow rate.
 
-It involves knowledge of the past content. It is why it's called `Deficit`, past contents decrease the scheduling priority.
+It involves knowledge of the past content: from which the word `Deficit`, past contents increase the deficit and thus decrease the scheduling priority.
 
 
-DWRR is a scheduling algorithm for the network scheduler: the unit of resource is the network bandwidth. Packets are prioritized according to their size and the flow slot.
-
-In our case, the unit of resource is the processing time. The higher the processing time ratio is, the higher the message rate would be. This value is the `quantum`, 
-it defines how much processing time ratio we will allocate per queue/slot. A quantum is noted `Q[i]` and is normalized to a ratio `Ratio[i] = Q[i] / Sum(Q[1..N])`.
+DWRR is a scheduling algorithm for the network scheduler: the unit of resource is the network bandwidth. Packets are prioritized according to their size and the incoming/outgoing flow slot.
+In our case, the unit of resource will be the processing time. The higher the processing time ratio is, the higher the message rate would be. This value is the `quantum`,
+ it defines how much processing time ratio we will allocate per queue/slot. A quantum is noted `Q`.
   
-Messages must be weighted: a processing time cost. It can be constant or dynamic and it's depends on the resource type. For example:
+The scheduling is done on queues. Given a priority range of `[1..N]`, it will involve `Qe[i]` queues. We will assign a quantum `Q[i]` to a queue `Qe[i]`. 
+Quantum may be normalized to a ratio `Ratio[i] = Q[i] / Sum(Q[1..N])`. This ratio is the part of resource allocated for a queue. 
+
+
+Pasts messages increase the deficit. Thus mesages must be weighted: a processing time cost must be computed per message. 
+It can be constant or dynamic and it's depends on the resource type:
 
 * Constant if the message processing time is constant
 * Dynamic if per message it vary significantly 
 
 For this article I will use a fixed weight.
 
-Two queues: Q1, Q2. 
-Q1 has a quantom of 10 and Q2 a quantum of 1. Q1 should have a processing rate 10 times faster than Q2. 
-Taken a processing time cost of 1, when Q1 deque 1 message per iteration, Q2 should wait 10 iteration to deque one.
+
+**Example**
+
+We have two queues: Q1, Q2. 
+Q1 has a quantum of 10 and Q2 a quantum of 1. Q1 should have a processing rate 10 times faster than Q2. 
+Taken a weight of 1, when Q1 deque 1 message per iteration, Q2 should wait 10 iteration to deque one.
 
 
 # Implementation
 
+The code is available on [github](https://github.com/nithril/article-fair-consuming-with-rabbitmq).
 
 ## Slot
 
@@ -66,7 +74,6 @@ public class DwrrSlot {
     private final int quantum;
     private int deficit;
     private final DwrrBlockingQueueConsumer consumer;
-    private int processedMsg;
 
     public DwrrSlot(DwrrBlockingQueueConsumer consumer, int quantum) {
         this.consumer = consumer;
@@ -77,15 +84,12 @@ public class DwrrSlot {
         deficit = 0;
     }
 
-    public int reduceDeficit(){
+    public void reduceDeficit(){
         deficit = deficit + quantum;
-        return deficit;
     }
 
-    public int increaseDeficit(int cost){
+    public void increaseDeficit(int cost){
         deficit = deficit - cost;
-        processedMsg = processedMsg + 1;
-        return deficit;
     }
 }
 {% endhighlight %}
@@ -93,7 +97,7 @@ public class DwrrSlot {
 
 ## The consumer
 
-This class subscribes to a RabbitMQ queue and stores delivered messages into `deliveries` collection.
+This class subscribes to a RabbitMQ queue and stores delivered messages into a collection (`deliveries`).
 The `consumerToken` semaphore releases a consumer token for each delivered message. Thus the main loop thread
 can be notified when a new message is available.
 
@@ -120,6 +124,7 @@ public class DwrrBlockingQueueConsumer {
      * @throws IOException
      */
     public void start() throws IOException {
+        //Subscribe to the queue and enable the acknowledgement
         channel.basicConsume(queue, false, consumer);
     }
 
@@ -145,7 +150,7 @@ public class DwrrBlockingQueueConsumer {
 
 ## The main loop
 
-We see in the main loop the purpose of the `consumerToken` semaphore. The `tryAcquire` allows to park the main loop thread if there is no delivery.
+The `consumerToken#tryAcquire` allows to park the main loop thread if there is no available message.
 The release of a `consumerToken` by `DwrrBlockingQueueConsumer.InternalConsumer#handleDelivery` will wake up the main loop thread with a minimal delay. 
 
 {% highlight java linenos %}
@@ -165,7 +170,7 @@ while (true) {
                 slot.increaseDeficit(MESSAGE_WEIGHT);
                 //Simulate processing time
                 Thread.sleep(0, 1000);
-                //Finally ack the message, so RabbitMQ will push a new one to the slot consumer
+                //Finally ack the message, so RabbitMQ will push a new one to the consumer
                 channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
             }
             //If the slot does not contain any deliveries, reset the deficit
@@ -189,12 +194,23 @@ while (true) {
 {% endhighlight %}
 
 
+-----------------------------------
+
+That's it. Pretty straightforward.
+ 
+
 # RabbitMQ Consumer Prefetch
 
-[Consumer prefetch](https://www.rabbitmq.com/consumer-prefetch.html) is an important RabbitMQ concept
+The AMQP supports an acknowledgement feature. When activated, the consumer must acknowledge (to the broker) all messages it receives.
+ Until the message is unacked, RabbitMQ will not push a new message to the consumer. The consumer prefetch (aka QoS) configures how much unacked messages a consumer can hold. 
+
+[Consumer prefetch](https://www.rabbitmq.com/consumer-prefetch.html) is an important RabbitMQ concept. 
+
 > AMQP specifies the basic.qos method to allow you to limit the number of unacknowledged messages on a channel (or connection) when consuming (aka "prefetch count").
 
 RabbitMQ will push message to the consumer until the number of unacked messages is reached. 
+
+
 The prefetch value must be set according to the processing speed. The priority ratio will be flattened if the processing rate is greater than the RabbitMQ push rate because consumers will wait for messages most of the time 
 
 > The goal is to keep the consumers saturated with work, but to minimise the client's buffer size so that more messages stay in Rabbit's queue and are thus available for new consumers or to just be sent out to consumers as they become free.
@@ -204,18 +220,41 @@ See this in depth article [*Some queuing theory: throughput, latency and bandwid
 
 # Results
 
+**10 queues, a message weight of 4, each queue contains 40000 messages. The message processing time is set to 100µs**
 
-Name=p0 Quantum=4  Consumed msg=3741 Msg/s=136.29408
-Name=p1 Quantum=8  Consumed msg=7377 Msg/s=268.76276
-Name=p2 Quantum=12 Consumed msg=11031 Msg/s=401.8872
-Name=p3 Quantum=16 Consumed msg=14556 Msg/s=530.3119
-Name=p4 Quantum=20 Consumed msg=18195 Msg/s=662.88983
-Name=p5 Quantum=24 Consumed msg=21828 Msg/s=795.2492
-Name=p6 Quantum=28 Consumed msg=25408 Msg/s=925.6777
-Name=p7 Quantum=32 Consumed msg=29024 Msg/s=1057.4176
-Name=p8 Quantum=36 Consumed msg=32605 Msg/s=1187.8826
-Name=p9 Quantum=40 Consumed msg=36250 Msg/s=1320.6791
+`p9` deque rate is ten time faster than `p0` one. This ratio is equals to the quantum one.  
 
+| Queue  | Qantum  | Consumed  | Rate      |
+|:------:|---------|-----------|-----------|
+| p0     | 4       | 3741      | 136.29408 |
+| p1     | 8       | 7377      | 268.76276 |
+| p2     | 12      | 11031     | 401.8872  |
+| p3     | 16      | 14556     | 530.3119  |
+| p4     | 20      | 18195     | 662.88983 |
+| p5     | 24      | 21828     | 795.2492  |
+| p6     | 28      | 25408     | 925.6777  |
+| p7     | 32      | 29024     | 1057.4176 |
+| p8     | 36      | 32605     | 1187.8826 |
+| p9     | 40      | 36250     | 1320.6791 |
+
+
+
+**10 queues, a message weight of 4, each queue contains 40000 messages. The message processing time is set to 1µs**
+
+The rate is flattened. My RabbitMQ instance cannot sustain the processing time rate.  
+
+| Queue  | Qantum  | Consumed  | Rate      |
+|:------:|---------|-----------|-----------|
+| p0     | 4       | 19546     | 1970.959  |
+| p1     | 8       | 19323     | 1948.4723 |
+| p2     | 12      | 20445     | 2061.6113 |
+| p3     | 16      | 19750     | 1991.5297 |
+| p4     | 20      | 20075     | 2024.3018 |
+| p5     | 24      | 19780     | 1994.5548 |
+| p6     | 28      | 20040     | 2020.7725 |
+| p7     | 32      | 20227     | 2039.6289 |
+| p8     | 36      | 20643     | 2081.5771 |
+| p9     | 40      | 20188     | 2035.6963 |
 
 
 
