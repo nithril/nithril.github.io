@@ -134,8 +134,10 @@ public List<AuthorWithBooks> findAuthorsWithBooksUsingSpringData() {
 {% endhighlight %}
 
 
+# Results
 
-| Qantum  | Consumed  | Rate      |
+
+| Scenario  | ops/s   | Error      |
 |:-------:|-----------|-----------|
 | Plain Jdbc                   | 11887.212    | 775.680 |
 | Hibernate Named Query        | 1015.088     | 16.014  |
