@@ -11,14 +11,14 @@ comments: true
 
 ## The query
 
-```
+{% highlight sql linenos %}
 SELECT AUTHOR.*, BOOK.* FROM AUTHOR LEFT OUTER JOIN BOOK ON AUTHOR.ID = BOOK.AUTHOR_ID
-```
+{% highlight java linenos %}
 
 
 ## Plain Old JDBC
 
-```
+{% highlight java linenos %}
 @Transactional(readOnly = true)
 public Collection<AuthorWithBooks> findAuthorsWithBooksJdbc() {
     Map<Long, AuthorWithBooks> booksMap = new HashMap<>();
@@ -37,7 +37,7 @@ public Collection<AuthorWithBooks> findAuthorsWithBooksJdbc() {
     });
     return booksMap.values();
 }
-```
+{% highlight java linenos %}
 
 
 
