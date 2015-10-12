@@ -6,7 +6,12 @@ categories: AMQP
 comments: true
 ---
 
-This quicky tests how jOOQ, Hibernate and JDBC perform against each other on a simple query / scenario.
+This quicky tests how jOOQ, Hibernate and JDBC perform against each other on a simple query / scenario:
+- Plain old SQL
+- jOOQ
+- Hibernate Named Query
+- Spring Data
+
 
 
 <!--more-->
@@ -90,11 +95,11 @@ public Collection<AuthorWithBooks> findAuthorsWithBooksjOOQIntoGroup() {
 
 ## jOOQ with hand made group by / mapping
 
-Test the cost of jOOQ groupBy and mapper.
+This function will allow to test the cost of jOOQ groupBy and mapper:
 
 {% highlight java linenos %}
 @Transactional(readOnly = true)
-public Object findAuthorsWithBooksjOOQOldFashionGroupBy() {
+public Collection<AuthorWithBooks> findAuthorsWithBooksjOOQOldFashionGroupBy() {
 
     Result<Record> records = dslContext.select()
             .from(AUTHOR.leftOuterJoin(BOOK).on(BOOK.AUTHOR_ID.equal(AUTHOR.ID)))
@@ -176,7 +181,7 @@ public List<AuthorWithBooks> findAuthorsWithBooksUsingSpringData() {
 
 
 | Scenario  | ops/s   | Error      |
-|:-------:|-----------|-----------|
+|-----------|-----------|-----------|
 | Plain Jdbc                   | 11887.212    | 775.680 |
 | Hibernate Named Query        | 1015.088     | 16.014  |
 | Hibernate Spring Data        | 1017.145     | 17.038  |
