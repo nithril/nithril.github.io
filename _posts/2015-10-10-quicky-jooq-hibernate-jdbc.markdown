@@ -7,11 +7,10 @@ comments: true
 ---
 
 This quicky tests how jOOQ, Hibernate and JDBC perform against each other on a simple query / scenario:
-- Plain old SQL
-- jOOQ
-- Hibernate Named Query
-- Spring Data
-
+* Plain old SQL
+* jOOQ
+* Hibernate Named Query
+* Spring Data
 
 
 <!--more-->
@@ -19,7 +18,7 @@ This quicky tests how jOOQ, Hibernate and JDBC perform against each other on a s
 
 # The database
 
-The database is H2 1.4.188. The DB schema contains an `AUTHOR` table with a one to many relation to a `BOOK` table. For simplicity, an author has at least one book.
+The database used is `H2 1.4.188`. The DB schema contains an `AUTHOR` table with a one to many relation to a `BOOK` table. For simplicity, an author has at least one book.
 
 The query involves a left outer join on `BOOK` from `AUTHOR`.
 
@@ -32,11 +31,11 @@ All query must returns a POJO containing the author associated to its books
 {% highlight java linenos %}
 public class AuthorWithBooks {
 	private Author author;
-	private List<Book> books = Collections.emptyList();
+	private List<Book> books;
 }
 {% endhighlight %}
 
-The DB contains 100 authors with a mean of 5 books per author.
+The DB is fed with 100 authors with a mean of 5 books per author.
 
 
 
@@ -44,7 +43,7 @@ The DB contains 100 authors with a mean of 5 books per author.
 
 ## Plain Old JDBC
 
-The mapping is done by hand
+The mapping is done by hand without `Stream`:
 
 {% highlight java linenos %}
 @Transactional(readOnly = true)
@@ -61,14 +60,15 @@ public Collection<AuthorWithBooks> findAuthorsWithBooksJdbc() {
         }
         Book book = new Book(r.getLong("BOOK.ID"), r.getString("BOOK.TITLE"), authorId);
         authorWithBooks.getBooks().add(book);
-
     });
     return booksMap.values();
 }
 {% endhighlight %}
 
 
-## jOOQ Into Group
+## jOOQ
+
+### jOOQ Into Group
 
 jOOQ `intoGroups` function return a {@link Map} with the result grouped by the given key table (here Author).
 The returned map contains instances of [Record](http://www.jOOQ.org/javadoc/3.7.x/org/jOOQ/Record.html),
@@ -93,9 +93,10 @@ public Collection<AuthorWithBooks> findAuthorsWithBooksjOOQIntoGroup() {
 {% endhighlight %}
 
 
-## jOOQ with hand made group by / mapping
+### jOOQ with hand made group by / mapping
 
-This function will allow to test the cost of jOOQ groupBy and mapper:
+This function will allow to test the cost of jOOQ `groupBy` and mapper. The group by is done by hand without `Stream`
+using the same code as the `Plain Old JDBC` one.
 
 {% highlight java linenos %}
 @Transactional(readOnly = true)
@@ -104,7 +105,7 @@ public Collection<AuthorWithBooks> findAuthorsWithBooksjOOQOldFashionGroupBy() {
     Result<Record> records = dslContext.select()
             .from(AUTHOR.leftOuterJoin(BOOK).on(BOOK.AUTHOR_ID.equal(AUTHOR.ID)))
             .fetch();
-    Map<Long, AuthorWithBooks> booksMap = new HashMap<>(records.size() / 4);
+    Map<Long, AuthorWithBooks> booksMap = new HashMap<>();
     records.stream()
             .forEach(r -> {
                 Long authorId = r.getValue(TAuthor.AUTHOR.ID);
@@ -126,7 +127,7 @@ public Collection<AuthorWithBooks> findAuthorsWithBooksjOOQOldFashionGroupBy() {
 
 # JPA
 
-All JPQ queries use this function to transform a list of duplicated list of `Author` to a list of distinct `AuthorWithBooks`:
+All JPQ queries are using this function to transform a list of duplicated list of `Author` to a list of distinct `AuthorWithBooks`:
 
 {% highlight java linenos %}
 private List<AuthorWithBooks> toAuthor(List<Author> authors) {
@@ -179,6 +180,9 @@ public List<AuthorWithBooks> findAuthorsWithBooksUsingSpringData() {
 
 # Results
 
+Launch time:
+* The Spring boot with jOOQ / SQL application starts in 1.9s.
+* The Spring Boot with Hibernate application starts in 2.9s.
 
 | Scenario  | ops/s   | Error      |
 |-----------|-----------|-----------|
@@ -187,4 +191,14 @@ public List<AuthorWithBooks> findAuthorsWithBooksUsingSpringData() {
 | Hibernate Spring Data        | 1017.145     | 17.038  |
 | jOOQ IntoGroup               | 1186.168     | 38.805  |
 | jOOQ Old Fashioned GroupBy   | 3217.562     | 132.897 |
+
+
+I'm not expecting such a difference between plain JDBC and jOOQ.
+
+
+
+
+
+
+
 
