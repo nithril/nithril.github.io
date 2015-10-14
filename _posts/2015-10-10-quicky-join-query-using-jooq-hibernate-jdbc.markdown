@@ -12,8 +12,6 @@ This quicky tests how jOOQ, Hibernate and JDBC perform against each other on a s
 * Hibernate Named Query
 * Spring Data
 
-This quicky focus on jOOQ pojo.
-
 
 <!--more-->
 
