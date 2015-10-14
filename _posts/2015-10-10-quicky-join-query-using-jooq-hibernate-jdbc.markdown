@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "Quicky: jOOQ / Hibernate / JDBC"
+title:  "Quicky: Join Query Using jOOQ / Hibernate / JDBC"
 date:   2015-10-10 10:18:46
 categories: AMQP
 comments: true
@@ -11,6 +11,8 @@ This quicky tests how jOOQ, Hibernate and JDBC perform against each other on a s
 * jOOQ
 * Hibernate Named Query
 * Spring Data
+
+This quicky focus on jOOQ pojo.
 
 
 <!--more-->
@@ -70,9 +72,9 @@ public Collection<AuthorWithBooks> findAuthorsWithBooksJdbc() {
 
 ### jOOQ Into Group
 
-jOOQ `intoGroups` function return a {@link Map} with the result grouped by the given key table (here Author).
+jOOQ `intoGroups` function return a Map with the result grouped by the given key table (here Author).
 The returned map contains instances of [Record](http://www.jOOQ.org/javadoc/3.7.x/org/jOOQ/Record.html),
-a database result record which is not a pojo but an array of object wrapped into an adapter class. `Record` instance are converted to POJO
+a database result row which is not a pojo but an array of object wrapped into an adapter class. `Record` instance are converted to POJO
 using the jOOQ [RecordMapper](http://www.jOOQ.org/javadoc/3.7.x/index.html?org/jOOQ/RecordMapper.html).
 
 {% highlight java linenos %}
@@ -127,7 +129,8 @@ public Collection<AuthorWithBooks> findAuthorsWithBooksjOOQOldFashionGroupBy() {
 
 # JPA
 
-All JPQ queries are using this function to transform a list of duplicated list of `Author` to a list of distinct `AuthorWithBooks`:
+Because of the join, JPA will return a list of author, with an author entry per returned row. This list will contain duplicate author entry.
+All JPQ queries are using the below function to transform a list of duplicated list of `Author` to a list of distinct `AuthorWithBooks`:
 
 {% highlight java linenos %}
 private List<AuthorWithBooks> toAuthor(List<Author> authors) {
@@ -169,6 +172,7 @@ The method from the repository interface:
 List<Author> findAllWithBooks();
 {% endhighlight %}
 
+The method from the query service:
 
 {% highlight java linenos %}
 @Transactional(readOnly = true)
@@ -180,25 +184,16 @@ public List<AuthorWithBooks> findAuthorsWithBooksUsingSpringData() {
 
 # Results
 
-Launch time:
-* The Spring boot with jOOQ / SQL application starts in 1.9s.
-* The Spring Boot with Hibernate application starts in 2.9s.
 
-| Scenario  | ops/s   | Error      |
-|-----------|-----------|-----------|
-| Plain Jdbc                   | 11887.212    | 775.680 |
-| Hibernate Named Query        | 1015.088     | 16.014  |
-| Hibernate Spring Data        | 1017.145     | 17.038  |
-| jOOQ IntoGroup               | 1186.168     | 38.805  |
-| jOOQ Old Fashioned GroupBy   | 3217.562     | 132.897 |
+| Scenario  | ops/s   |
+|-----------|---------|
+| Plain Jdbc                   | 11887.212 ± 254.889 |
+| Hibernate Named Query        | 1015.088  ± 16.014  |
+| Hibernate Spring Data        | 1017.145  ± 17.038  |
+| jOOQ IntoGroup               | 1186.168  ± 11.805  |
+| jOOQ hand made groupBy       | 3217.562  ± 31.897  |
 
 
-I'm not expecting such a difference between plain JDBC and jOOQ.
-
-
-
-
-
-
-
+I'm not expecting such a difference between plain JDBC and jOOQ and especially when using jOOQ groupBy and mapper.
+The jOOQ code path seems less straight than I expected. It should be explained by a bunch of objects allocation per row (Record, Pojo) and the use of two mappers.
 
