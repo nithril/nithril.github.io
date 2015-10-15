@@ -186,7 +186,7 @@ public List<AuthorWithBooks> findAuthorsWithBooksUsingSpringData() {
 
 
 | Scenario  | ops/s   |
-|-----------|---------|
+|:-----------|:---------|
 | Plain Jdbc                   | 11887.212 ± 254.889 |
 | Hibernate Named Query        | 1015.088  ± 16.014  |
 | Hibernate Spring Data        | 1017.145  ± 17.038  |
