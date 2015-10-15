@@ -2,7 +2,7 @@
 layout: post
 title:  "Quicky: Query Benchmark Using jOOQ / Hibernate / JDBC"
 date:   2015-10-10 10:18:46
-categories: AMQP
+categories: JPA
 comments: true
 ---
 
