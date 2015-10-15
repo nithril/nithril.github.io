@@ -194,6 +194,6 @@ public List<AuthorWithBooks> findAuthorsWithBooksUsingSpringData() {
 | jOOQ hand made groupBy       | 3217.562  ± 31.897  |
 
 I'm not expecting such a difference between plain JDBC and jOOQ and especially when using jOOQ groupBy and mapper.
-My benchmark may be wrong or the jOOQ code path seems less straight than I expected, it involves a bunch of objects allocation per row (Record, Pojo) and the use of two mappers.
+My benchmark may be wrong, I miss THE fetch method to used, or the jOOQ code path is less straight than I expected as it seems to involve a bunch of objects allocation per row (Record, Pojo) and (in my case) the use of two mappers.
 
-
+Whatever, comments are welcome to improve this quicky.
