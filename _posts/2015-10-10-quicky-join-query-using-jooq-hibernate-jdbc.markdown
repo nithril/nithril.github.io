@@ -7,7 +7,7 @@ comments: true
 ---
 
 This quicky tests how [jOOQ](http://jooq.org/), [Hibernate](http://hibernate.org/) and JDBC perform against each other on a simple query / scenario
-involing Plain old SQL, jOOQ, Hibernate Named Query, Spring Data.
+involing Plain old SQL, jOOQ, Hibernate Named Query, Spring Data JPA.
 
 
 <!--more-->
@@ -85,9 +85,9 @@ public Collection<AuthorWithBooks> findAuthorsWithBooksjOOQIntoGroup() {
             .stream()
             .map(e -> {
                 Author author = authorRepository.mapper().map(e.getKey());
-                List<Book> stream = e.getValue().stream()
+                List<Book> books = e.getValue().stream()
                         .map(r -> bookRepository.mapper().map(r.into(TBook.BOOK))).collect(Collectors.toList());
-                return new AuthorWithBooks(author, stream);
+                return new AuthorWithBooks(author, books);
             }).collect(Collectors.toList());
 }
 {% endhighlight %}
@@ -161,7 +161,7 @@ public List<AuthorWithBooks> findAuthorsWithBooksUsingNamedQuery() {
 
 
 
-## Spring Data
+## Spring Data JPA
 
 The method from the repository interface:
 
@@ -182,8 +182,12 @@ public List<AuthorWithBooks> findAuthorsWithBooksUsingSpringData() {
 
 # Results
 
-25s of warmup, 25s of measure using [JMH](http://openjdk.java.net/projects/code-tools/jmh/).
+* Out of the box, JPA based queries are the cleanest, only a distinct statement is needed to filter the result.
+* The JDBC query and the result mapping are not surprising: plain SQL and the result mapping must be done by hand.
+* The jOOQ query is neat, thanks to the DSL. On my use case the results must be mapped from Record to Pojo which add a litle burden to the code. My use case is maybe border line and the `Record` is the first class result.
 
+
+The benchmark is done using [JMH](http://openjdk.java.net/projects/code-tools/jmh/): 25s of warmup, 25s of measure.
 
 | Scenario  | ops/s   |
 |:-----------|:---------|
@@ -193,7 +197,8 @@ public List<AuthorWithBooks> findAuthorsWithBooksUsingSpringData() {
 | jOOQ IntoGroup               | 1186.168  ± 11.805  |
 | jOOQ hand made groupBy       | 3217.562  ± 31.897  |
 
-I'm not expecting such a difference between plain JDBC and jOOQ and especially when using jOOQ groupBy and mapper.
-My benchmark may be wrong, I miss THE fetch method to used, or the jOOQ code path is less straight than I expected as it seems to involve a bunch of objects allocation per row (Record, Pojo) and (in my case) the use of two mappers.
+I'm not expecting such a difference between plain JDBC and the others (that's suspicious, a factor of 3 would have been acceptable).
+I'm not even expecting such a difference between plain JDBC and jOOQ and especially when using jOOQ groupBy and mapper.
 
-Whatever, comments are welcome to improve this quicky.
+My benchmark may be wrong, I miss THE fetch method to used, or the jOOQ code path is less straight than I expected as it seems to involve a bunch of objects allocation per row (Record, Pojo) and (in my case) the use of two mappers.
+Whatever, comments/pull request are welcome to improve this quicky.
