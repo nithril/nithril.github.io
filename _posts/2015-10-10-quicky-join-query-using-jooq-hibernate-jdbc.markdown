@@ -1,16 +1,13 @@
 ---
 layout: post
-title:  "Quicky: Join Query Using jOOQ / Hibernate / JDBC"
+title:  "Quicky: Query Benchmark Using jOOQ / Hibernate / JDBC"
 date:   2015-10-10 10:18:46
 categories: AMQP
 comments: true
 ---
 
-This quicky tests how jOOQ, Hibernate and JDBC perform against each other on a simple query / scenario:
-* Plain old SQL
-* jOOQ
-* Hibernate Named Query
-* Spring Data
+This quicky tests how [jOOQ](http://jooq.org/), [Hibernate](http://hibernate.org/) and JDBC perform against each other on a simple query / scenario
+involing Plain old SQL, jOOQ, Hibernate Named Query, Spring Data.
 
 
 <!--more-->
@@ -182,6 +179,8 @@ public List<AuthorWithBooks> findAuthorsWithBooksUsingSpringData() {
 
 # Results
 
+25s of warmup, 25s of measure using [JMH](http://openjdk.java.net/projects/code-tools/jmh/).
+
 
 | Scenario  | ops/s   |
 |-----------|---------|
@@ -191,7 +190,7 @@ public List<AuthorWithBooks> findAuthorsWithBooksUsingSpringData() {
 | jOOQ IntoGroup               | 1186.168  ± 11.805  |
 | jOOQ hand made groupBy       | 3217.562  ± 31.897  |
 
-
 I'm not expecting such a difference between plain JDBC and jOOQ and especially when using jOOQ groupBy and mapper.
-The jOOQ code path seems less straight than I expected. It should be explained by a bunch of objects allocation per row (Record, Pojo) and the use of two mappers.
+My benchmark may be wrong or the jOOQ code path seems less straight than I expected, it involves a bunch of objects allocation per row (Record, Pojo) and the use of two mappers.
+
 
