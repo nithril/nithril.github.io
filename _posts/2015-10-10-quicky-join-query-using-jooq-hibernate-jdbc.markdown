@@ -7,7 +7,7 @@ comments: true
 ---
 
 This quicky tests how [jOOQ](http://jooq.org/), [Hibernate](http://hibernate.org/) and JDBC perform against each other on a simple query / scenario
-involing Plain old SQL, jOOQ, Hibernate Named Query, Spring Data JPA.
+involing Plain Old SQL, jOOQ, Hibernate Named Query and Spring Data JPA.
 
 
 <!--more-->
