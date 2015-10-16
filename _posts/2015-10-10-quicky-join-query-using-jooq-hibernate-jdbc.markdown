@@ -188,8 +188,10 @@ public List<AuthorWithBooks> findAuthorsWithBooksUsingSpringData() {
 
 
 The benchmark is done using [JMH](http://openjdk.java.net/projects/code-tools/jmh/):
+
 * 25s of warmup, 25s of measure.
 * 1 thread (core i5@3.1GHz)
+
 
 Reference scenario involve a nop mapping.
 
