@@ -187,10 +187,16 @@ public List<AuthorWithBooks> findAuthorsWithBooksUsingSpringData() {
 * The jOOQ query is neat, thanks to the DSL. On my use case the results must be mapped from Record to Pojo which add a litle burden to the code. My use case is maybe border line and the `Record` is the first class result.
 
 
-The benchmark is done using [JMH](http://openjdk.java.net/projects/code-tools/jmh/): 25s of warmup, 25s of measure.
+The benchmark is done using [JMH](http://openjdk.java.net/projects/code-tools/jmh/):
+* 25s of warmup, 25s of measure.
+* 1 thread (core i5@3.1GHz)
+
+Reference scenario involve a nop mapping.
+
 
 | Scenario  | ops/s   |
 |:-----------|:---------|
+| Reference                    | 12446.552 ± 328.210 |
 | Plain Jdbc                   | 11887.212 ± 254.889 |
 | Hibernate Named Query        | 1015.088  ± 16.014  |
 | Hibernate Spring Data        | 1017.145  ± 17.038  |
