@@ -12,6 +12,14 @@ involing Plain Old SQL, jOOQ, Hibernate Named Query and Spring Data JPA.
 
 <!--more-->
 
+# EDIT 2015/10/17
+
+Yourkit profiling confirms my feeling about jOOQ results. jOOQ spent time creating the query, allocating new `Record` and processing the result set. The code is far far from straight.
+
+![Profiling](/assets/2015-10-10-quicky-join-query-using-jooq-hibernate-jdbc/profiling.png)
+
+
+
 # Source
 
 Sources are available [here](https://github.com/nithril/sandbox-query-benchmark-jooq-hibernate-jdbc/tree/article-quicky-query-benchmark-jooq-hibernate-jdbc).
@@ -210,3 +218,12 @@ I'm not even expecting such a difference between plain JDBC and jOOQ and especia
 
 My benchmark may be wrong, I miss THE fetch method to used, or the jOOQ code path is less straight than I expected as it seems to involve a bunch of objects allocation per row (Record, Pojo) and (in my case) the use of two mappers.
 Whatever, comments/pull request are welcome to improve this quicky.
+
+
+
+
+
+
+
+
+
