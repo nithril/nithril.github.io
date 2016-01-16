@@ -164,9 +164,7 @@ Results are again far better:
 
 | Benchmark  | Before ms/op   | After ms/op |
 |:-----------|:---------|
-| lambdaBoxingMaxInteger  | 0.527 ± 0.098 | 0.092 ± 0.143 |
 | lambdaMaxInteger        | 0.563 ± 0.035 | 0.109 ± 0.025 | 
-| streamBoxingMaxInteger  | 0.617 ± 0.489  | 0.085 ± 0.013 |
 | streamMaxInteger        | 0.115 ± 0.020  | 0.113 ± 0.029 |
 
 
@@ -179,8 +177,8 @@ Results are again far better:
 |:-----------|:---------|
 | forMax2Integer          | 0.096 ± 0.007  | 0.096 ± 0.004 |
 | parallelStreamMaxInteger| 0.047 ± 0.005  | 0.049 ± 0.005 |
-| lambdaBoxingMaxInteger  | 0.527 ± 0.098 | 0.092 ± 0.143 |
-| lambdaMaxInteger        | 0.563 ± 0.035 | 0.109 ± 0.025 | 
+| lambdaBoxingMaxInteger  | 0.527 ± 0.098  | 0.092 ± 0.143 |
+| lambdaMaxInteger        | 0.563 ± 0.035  | 0.109 ± 0.025 | 
 | streamBoxingMaxInteger  | 0.617 ± 0.489  | 0.085 ± 0.013 |
 | streamMaxInteger        | 0.115 ± 0.020  | 0.113 ± 0.029 |
 
