@@ -58,7 +58,7 @@ public int lambdaMaxInteger() {
 On the other side, the stream consumes a list of Integer. Thus the primitive result of `Integer#max` is boxed to an `Integer`, ie. an implicit 
 `Integer#valueOf` is inserted by the compiler.  
 
-{% highlight bytecode linenos %}
+{% highlight java linenos %}
     LINENUMBER 191 L0
     ALOAD 0
     INVOKEVIRTUAL java/lang/Integer.intValue ()I
