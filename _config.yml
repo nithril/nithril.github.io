@@ -47,6 +47,8 @@ search :
 #
 excerpt : teaser
 
+gems: [jekyll-paginate]
+
 # The number of items displayed per page.
 #
 paginate : 5
