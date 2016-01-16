@@ -22,6 +22,8 @@ but unexplained results:
 
 | Benchmark  | ms/op   |
 |:-----------|:---------|
+| forMax2Integer          | 0.096 ± 0.007  |
+| parallelStreamMaxInteger| 0.047 ± 0.005  |
 | lambdaBoxingMaxInteger  | 0.513 ± 0.094  |
 | lambdaMaxInteger        | 0.555 ± 0.062  |
 | streamBoxingMaxInteger  | 0.506 ± 0.010  |
@@ -93,11 +95,9 @@ public int lambdaBoxingMaxInteger() {
 Results are far better as soon as you are aware of the boxing issue:
 
 | Benchmark  | Before ms/op   | After ms/op |
-|:-----------|:---------|
+|:-----------|:---------|:---------|
 | lambdaBoxingMaxInteger  | 0.527 ± 0.098 | 0.266 ± 0.268 |
-| lambdaMaxInteger        | 0.563 ± 0.035 | TBD | 
 | streamBoxingMaxInteger  | 0.617 ± 0.489  | 0.085 ± 0.013 |
-| streamMaxInteger        | 0.115 ± 0.020  | TBD |
 
 When working with boxed primitive it is better to use an `IntStream` using for example the `mapToInt` transformation.
 
@@ -130,7 +130,6 @@ private static Integer lambda$lambdaMaxInteger$0(Integer a , Integer b){
  integers.stream().mapToInt(Integer::intValue).reduce(Integer.MIN_VALUE, LoopBenchmarkMain::lambda$lambdaMaxInteger$0);
 {% endhighlight %} 
 
-And the call site is too an `INVOKESTATIC`.
 
 Once compiled both use `INVOKESTATIC` but `lambdaMaxInteger` has a call depth deeper by 1 than `streamMaxInteger`. The performance difference
  could be explained if the call to `lambda$lambdaMaxInteger$0` is not inlined
@@ -156,6 +155,32 @@ In order to analyse the JVM inlining, the bench is launched using [`-XX:+UnlockD
           @ 2   java.lang.Integer::max (6 bytes)   inlining too deep
 {% endhighlight %} 
 
+Gotcha,  `@ 2   java.lang.Integer::max (6 bytes)   inlining too deep`, the issue and the performance difference is not the code (ie. the lambda) but a 
+a coincidence. 
+
+Let increase the max inlining level to 10 from 9 `-XX:MaxInlineLevel=10`
+
+Results are again far better:
+
+| Benchmark  | Before ms/op   | After ms/op |
+|:-----------|:---------|
+| lambdaBoxingMaxInteger  | 0.527 ± 0.098 | 0.092 ± 0.143 |
+| lambdaMaxInteger        | 0.563 ± 0.035 | 0.109 ± 0.025 | 
+| streamBoxingMaxInteger  | 0.617 ± 0.489  | 0.085 ± 0.013 |
+| streamMaxInteger        | 0.115 ± 0.020  | 0.113 ± 0.029 |
 
 
+
+# Conclusion
+
+
+
+| Benchmark  | Before ms/op   | After ms/op |
+|:-----------|:---------|
+| forMax2Integer          | 0.096 ± 0.007  | 0.096 ± 0.004 |
+| parallelStreamMaxInteger| 0.047 ± 0.005  | 0.049 ± 0.005 |
+| lambdaBoxingMaxInteger  | 0.527 ± 0.098 | 0.092 ± 0.143 |
+| lambdaMaxInteger        | 0.563 ± 0.035 | 0.109 ± 0.025 | 
+| streamBoxingMaxInteger  | 0.617 ± 0.489  | 0.085 ± 0.013 |
+| streamMaxInteger        | 0.115 ± 0.020  | 0.113 ± 0.029 |
 
