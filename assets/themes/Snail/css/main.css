@@ -36,9 +36,9 @@ blockquote:before,blockquote:after,q:before,q:after {
 code {
 	padding: .15em .5em;
 	font-family: Monaco,Menlo,Consolas,"Courier New",monospace;
-	border:1px solid #ccc;
+	border:1px solid #eeeeee;
 	border-radius:3px;
-	background:#efefef;
+	background: #fafafa;
 	/* color:#777; */
 }
 pre code {
