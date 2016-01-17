@@ -206,8 +206,8 @@ The autoboxing performance issue could have also occurred with a for statement:
 In my opinion a better title would be `Benchmark: How Misusing Autoboxing Can Make Your Code 5 Times Slower`.
 
 Java is a subtle language and optimizing could be complex and benchmarking could be hard. 
-Java library does not implement for wrapper class the counterpart methods which operate on primitive. 
-It relies on autoboxing and unboxing and the Java compiler and JIT could not be able to optimize the code. 
+Java library does not implement for wrapper classes the counterpart methods which operate on primitives. 
+It relies on autoboxing and unboxing and the Java compiler and JIT could not be able to fully optimize the code. 
 
 Anyway for this use case (max of a list), stream and lambda are not slower than a `for` statement.
  On the contrary they seem faster. I do not have yet analyse why, maybe in a part 2.
