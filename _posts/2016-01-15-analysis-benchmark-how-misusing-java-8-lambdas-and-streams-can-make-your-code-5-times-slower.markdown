@@ -21,7 +21,7 @@ but unexplained results:
 ## The original code
 
 The code is available on [Takipi github](https://github.com/takipi/loops-jmh-playground/). I have taken the code from both the `fixes` branch (optimized version) 
-and the `master` branch (with the boxing issue). The modified code of this article is available [on github](https://github.com/nithril/loops-jmh-playground)   
+and the `master` branch (with the boxing issue). The modified code of this article is available [on github](https://github.com/nithril/loops-jmh-playground/tree/fixes)   
   
 {% highlight java linenos %}
 public int streamBoxingMaxInteger() {
