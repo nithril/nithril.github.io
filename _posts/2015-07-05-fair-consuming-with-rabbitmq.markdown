@@ -153,7 +153,7 @@ public class DwrrBlockingQueueConsumer {
 The `consumerToken#tryAcquire` allows to park the main loop thread if there is no available message.
 The release of a `consumerToken` by `DwrrBlockingQueueConsumer.InternalConsumer#handleDelivery` will wake up the main loop thread with a minimal delay. 
 
-{% highlight java linenos %}
+```java
 while (true) {
     int processedMessageCounter = 0;
 
@@ -193,7 +193,7 @@ while (true) {
         LOG.info("No message");
     }
 }
-{% endhighlight %}
+```
 
 
 -----------------------------------
