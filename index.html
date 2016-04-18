@@ -20,7 +20,7 @@ group: home
 			<div class="journal-body">
 
 
-				<h1 class="journal-title"><a href="{{ post.url }}">{{ post.title }}</a><span class="author">{{ post.tagline }}</span></h1>
+				<h1 class="journal-title"><a href="{{ post.url }}/">{{ post.title }}</a><span class="author">{{ post.tagline }}</span></h1>
 				{% case site.excerpt %}
 				{% when "truncate_words" %}
 				<span class="teaser"><p>{{ post.content | strip_html | truncatewords: 20 }}</p>
