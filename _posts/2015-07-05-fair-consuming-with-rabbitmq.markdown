@@ -172,6 +172,8 @@ while (true) {
                 Thread.sleep(0, 1000);
                 //Finally ack the message, so RabbitMQ will push a new one to the consumer
                 channel.basicAck(delivery.getEnvelope().getDeliveryTag(), false);
+                //Increment the number of processed message
+                processedMessageCounter++;                
             }
             //If the slot does not contain any deliveries, reset the deficit
             if (slot.getConsumer().getDeliveries().isEmpty()) {
