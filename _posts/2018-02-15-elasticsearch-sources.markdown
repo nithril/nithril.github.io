@@ -101,7 +101,7 @@ Ran on a core i5.
 deserialization (and so jackson) time is taken by the UTF8 decoder whereas `msgpack` format is more efficient. 
 
 
-The interesting part is the throughput and so the impact of the _source size on the search duration.
+The interesting part is the throughput and so the impact of the `_source` size on the search timing.
 
 | Benchmark  | throughput |
 |:-----------|:---------|
@@ -109,34 +109,31 @@ The interesting part is the throughput and so the impact of the _source size on 
 | msgpackBench        | 873 MB/s  | 
 
 
-With a 10MB _source, I may expect a search request returning 20 documents to take at least 556ms, and only for the response 
+With a 10MB _source, a search request returning 20 documents will take at least 556ms, and only for the response 
 building. Without doubt the performance issue I had to analyze was caused by the `_source` size. 
 
-By using a more efficient storage format, ES may improve the efficiency 2.4 times. A technically low hanging fruit, but
-potentially high because of the migration.  
-
-
-# Conclusion
-
 `_source` handling may not be neutral and before ingesting large field, you should consider the impact on the performance by benchmarking.
+on real use case scenarii.
 
-And this quicky does not even address the memory and the network pressure:
-- 20 documents of 10MB will take at least 200MB and even 400MB with UTF-16
+The purpose is to avoid the case where the `_source` handling requires a significant percentage of the total ES processing time. 
+And even if large document are not so common in an index, the impact will be visible on the percentile.
+
+This quicky does not address the memory and the network pressure:
+- _source is stored in a Lucene stored field (compressed): impact on the mapped file 
+- 20 documents of 10MB will take at least 200MB (and even 400MB with UTF-16): loaded in memory then transferred through the network
+
+Note that by using a more efficient storage format, ie. msgpack, ES may improve the efficiency 2.4 times. A technically low hanging fruit, but
+potentially high because of the migration.
 
 
-By the way you may:
+There are some workarounds:
 - Exclude [the large field from the _source](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-source-field.html#include-exclude) with the associated downside.
 - [Store](https://www.elastic.co/guide/en/elasticsearch/reference/current/mapping-store.html) the fields and never returns the `_source` 
 
-And votes:
+And some open issues to address the point:
 - [Better storage of `_source`](https://github.com/elastic/elasticsearch/issues/9034)
-* [Memory efficient source filtering](https://github.com/elastic/elasticsearch/issues/25168)
+- [Memory efficient source filtering](https://github.com/elastic/elasticsearch/issues/25168)
+ 
 
-
- 
- 
- 
- 
- 
  
  
