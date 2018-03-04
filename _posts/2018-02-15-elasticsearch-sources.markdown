@@ -97,7 +97,7 @@ Ran on a core i5.
 
 
 `elasticBench` and `jacksonBench` results are side by side. It is not a surprise as ES is using internally Jackson.
-`msgpackBench` is 2.4 times more efficient than `elasticBench`. It is not a surprise as most of the `elasticBench` 
+`msgpackBench` is 2.4 times more efficient than `elasticBench`. Most of the `elasticBench`
 deserialization (and so jackson) time is taken by the UTF8 decoder whereas `msgpack` format is more efficient. 
 
 
